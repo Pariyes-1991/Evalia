@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 import requests
-import re
 from urllib.parse import quote
+import io
 
 # Custom CSS for Apple-inspired design
 st.markdown("""
@@ -52,27 +52,45 @@ def fetch_excel_data(link):
         response = requests.get(download_url, allow_redirects=True)
         if response.status_code == 200:
             # Read Excel file directly from response content
-            df = pd.read_excel(response.content)
+            df = pd.read_excel(io.BytesIO(response.content))
             return df
         else:
-            st.error("Failed to fetch Excel file. Please check the link.")
+            st.error(f"Failed to fetch Excel file. Status code: {response.status_code}. Ensure the link is publicly accessible.")
             return None
     except Exception as e:
-        st.error(f"Error fetching Excel data: {str(e)}")
+        st.error(f"Error fetching Excel data: {str(e)}. Please check the link or file permissions.")
         return None
+
+# Function to find column names case-insensitively
+def get_column(df, possible_names):
+    for col in df.columns:
+        if col.lower() in [name.lower() for name in possible_names]:
+            return col
+    return None
 
 # Function to analyze applicants
 def analyze_applicants(df):
     results = []
+    # Identify columns dynamically
+    name_col = get_column(df, ['Name', 'Applicant_Name', 'Full_Name'])
+    bmi_col = get_column(df, ['BMI', 'Body_Mass_Index'])
+    years_col = get_column(df, ['Years_of_Experience', 'Experience_Years', 'Years'])
+    desc_col = get_column(df, ['Experience_Description', 'Description', 'Experience'])
+    email_col = get_column(df, ['Email', 'Email_Address'])
+
+    if not all([name_col, bmi_col, years_col, desc_col, email_col]):
+        st.error("Required columns (Name, BMI, Years_of_Experience, Experience_Description, Email) not found in Excel.")
+        return []
+
     for index, row in df.iterrows():
         # BMI Analysis
-        bmi = row.get('BMI', 0)
+        bmi = float(row.get(bmi_col, 0))
         level = "Low" if bmi > 25 else "High"  # Default to High if BMI <= 25
 
         # Experience Analysis (rule-based)
-        years = row.get('Years_of_Experience', 0)
-        description = row.get('Experience_Description', '')
-        
+        years = float(row.get(years_col, 0))
+        description = str(row.get(desc_col, ''))
+
         # Simple rule-based scoring
         experience_score = 0
         if years > 5:
@@ -84,7 +102,7 @@ def analyze_applicants(df):
 
         # Keyword-based scoring for description
         keywords = ['leadership', 'management', 'project', 'team', 'development']
-        description_score = sum(10 for keyword in keywords if keyword.lower() in str(description).lower())
+        description_score = sum(10 for keyword in keywords if keyword.lower() in description.lower())
         total_score = experience_score + description_score
 
         # Adjust level based on experience score
@@ -99,8 +117,8 @@ def analyze_applicants(df):
             reason = f"High experience score ({total_score}): {years} years with strong relevant experience."
 
         # Prepare action buttons
-        email = row.get('Email', '')
-        name = row.get('Name', 'Applicant')
+        email = row.get(email_col, '')
+        name = row.get(name_col, 'Applicant')
         email_subject = quote(f"Application Review for {name}")
         email_body = quote(f"Dear {name},\n\nWe have reviewed your application. Your assigned level is {level}.\nReason: {reason}\n\nBest regards,\nEvalia Team")
         email_link = f"mailto:{email}?subject={email_subject}&body={email_body}"
@@ -123,7 +141,7 @@ st.markdown("A clean, modern applicant analysis tool.")
 
 # Input for Excel link
 excel_link = st.text_input("Paste Microsoft Excel Online (OneDrive/SharePoint) Link", 
-                         value="https://bdmsgroup-my.sharepoint.com/:x:/g/personal/recruitment_bdms_co_th/EemR4Mg1E_pFr41PR8vBKPEB2GM_vy3iSfXv6BqWKQE58A?e=7Udc0G")
+                         value="https://bdmsgroup-my.sharepoint.com/:x:/g/personal/recruitment_bdms_co_th/EemR4Mg1E_pFr41PR8vBKPEB2GM_vy3iSfXv6BqWKQE58A?e=6z7iNg")
 
 if st.button("Fetch & Analyze"):
     if excel_link:
@@ -131,19 +149,19 @@ if st.button("Fetch & Analyze"):
             df = fetch_excel_data(excel_link)
             if df is not None:
                 results = analyze_applicants(df)
-                
-                # Display results
-                st.subheader("Applicant Analysis Results")
-                for applicant in results:
-                    st.markdown(f"""
-                    <div class="applicant-card">
-                        <h3>{applicant['Name']}</h3>
-                        <p><strong>Level:</strong> {applicant['Level']}</p>
-                        <p><strong>Reason:</strong> {applicant['Reason']}</p>
-                        <a href="{applicant['Email_Link']}" target="_blank"><button>Send Email</button></a>
-                        <a href="{applicant['Teams_Link']}" target="_blank"><button>Schedule Interview</button></a>
-                    </div>
-                    """, unsafe_allow_html=True)
+                if results:
+                    # Display results
+                    st.subheader("Applicant Analysis Results")
+                    for applicant in results:
+                        st.markdown(f"""
+                        <div class="applicant-card">
+                            <h3>{applicant['Name']}</h3>
+                            <p><strong>Level:</strong> {applicant['Level']}</p>
+                            <p><strong>Reason:</strong> {applicant['Reason']}</p>
+                            <a href="{applicant['Email_Link']}" target="_blank"><button>Send Email</button></a>
+                            <a href="{applicant['Teams_Link']}" target="_blank"><button>Schedule Interview</button></a>
+                        </div>
+                        """, unsafe_allow_html=True)
     else:
         st.error("Please provide a valid Excel link.")
 
