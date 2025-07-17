@@ -72,11 +72,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Load pipeline for distilbert-base-uncased (fill-mask task)
+# Load pipeline for distilroberta-base-sst-2 (sentiment analysis)
 @st.cache_resource
 def load_pipeline():
     try:
-        pipe = pipeline("fill-mask", model="distilbert/distilbert-base-uncased")
+        pipe = pipeline("sentiment-analysis", model="distilroberta-base-sst-2")
         return pipe
     except Exception as e:
         st.error(f"Error loading pipeline: {str(e)}. Falling back to rule-based analysis.")
@@ -104,7 +104,7 @@ def fetch_excel_data(link):
         st.error(f"Connection error: {str(e)}. Please ensure the link is publicly accessible or check your network.")
         return None
     except requests.exceptions.HTTPError as e:
-        st.error(f"HTTP error: {str(e)}. The link may require authentication or is invalid.")
+        st.error(f"HTTP error: {str(e)}. The link may require authentication or is invalid. Please check sharing settings in SharePoint.")
         return None
     except requests.exceptions.Timeout:
         st.error("Request timed out. Please try again later.")
@@ -122,22 +122,23 @@ def analyze_applicant(row):
         
         position = str(row.get('Position', '')).lower()
         experience_years = float(row.get('Experience_Years', 0))
-        input_text = f"Position: {position}, Experience: {experience_years} years, [MASK] suitability"
+        input_text = f"Position: {position}, Experience: {experience_years} years"
         
         level = "Mid"
         reason = "Analysis based on fallback logic"
         
         if pipe:
-            # Use fill-mask to infer suitability
-            result = pipe(input_text)
-            top_prediction = result[0]['token_str'] if result and len(result) > 0 else "moderate"
-            if 'high' in top_prediction.lower() or experience_years >= 5:
+            # Use sentiment analysis to infer suitability
+            result = pipe(input_text)[0]
+            sentiment = result['label']
+            score = result['score']
+            if sentiment == "POSITIVE" and experience_years >= 2:
                 level = "High"
-            elif 'low' in top_prediction.lower() or bmi > 25:
+            elif sentiment == "NEGATIVE" or bmi > 25:
                 level = "Low"
             else:
                 level = "Mid"
-            reason = f"AI predicted suitability as {top_prediction} (experience: {experience_years} years)"
+            reason = f"AI sentiment: {sentiment} (score: {score:.2f}, experience: {experience_years} years)"
         
         if bmi > 25:
             level = "Low"
@@ -171,7 +172,7 @@ def main():
     excel_link = st.text_input(
         "Paste Microsoft Excel Online Link",
         placeholder="https://yourdomain.sharepoint.com/:x:/...",
-        value="https://bdmsgroup-my.sharepoint.com/:x:/g/personal/recruitment_bdms_co_th/EemR4Mg1E_pFr41PR8vBKPEB2GM_vy3iSfXv6BqWKQE58A?e=SN2YUk",
+        value="https://bdmsgroup-my.sharepoint.com/:x:/g/personal/recruitment_bdms_co_th/EemR4Mg1E_pFr41PR8vBKPEB2GM_vy3iSfXv6BqWKQE58A?e=t4eGF1",
         help="Enter a valid OneDrive or SharePoint Excel link"
     )
 
@@ -194,7 +195,7 @@ def main():
         
         available_columns = ['ApplicationDate', 'FirstName', 'LastName', 'Position', 'Department', 
                            'Height_cm', 'Weight_kg', 'BMI', 'Level', 'Reason']
-        display_df = df[[col for col in available_columns if col in df.columns]]  # Corrected syntax
+        display_df = df[[col for col in available_columns if col in df.columns]]
         st.dataframe(display_df, use_container_width=True)
         
         for index, row in df.iterrows():
