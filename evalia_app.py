@@ -1,137 +1,151 @@
 import streamlit as st
 import pandas as pd
 import requests
-import io
+import re
+from urllib.parse import quote
 
-# Custom CSS for modern Apple-inspired theme
+# Custom CSS for Apple-inspired design
 st.markdown("""
 <style>
     .main {
-        background-color: #ffffff;
-        padding: 40px 20px;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        color: #1d1d1f;
+        background-color: #FFFFFF;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    .stButton>button {
-        background: linear-gradient(135deg, #0071e3, #005bb5);
-        color: #ffffff;
-        border-radius: 12px;
+    .stButton > button {
+        background-color: #007BFF;
+        color: white;
+        border-radius: 8px;
         padding: 10px 20px;
         border: none;
-        font-size: 14px;
-        font-weight: 600;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
     }
-    .stButton>button:hover {
-        background: linear-gradient(135deg, #0066cc, #004d99);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        transform: translateY(-1px);
+    .stButton > button:hover {
+        background-color: #0056b3;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
-    .stFileUploader > div > div > div {
-        border-radius: 12px;
-        border: 1px solid #d2d2d7;
+    .stTextInput > div > input {
+        border-radius: 8px;
+        border: 1px solid #007BFF;
         padding: 10px;
-        background-color: #f5f5f7;
-    }
-    .stDataFrame {
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-        background-color: #ffffff;
     }
     h1, h2, h3 {
-        color: #1d1d1f;
-        font-weight: 600;
-        letter-spacing: -0.5px;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #333;
     }
     .applicant-card {
-        background: #f5f5f7;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e5e5ea;
-        transition: all 0.2s ease;
-    }
-    .applicant-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-    }
-    .header-section {
-        text-align: center;
-        padding: 30px 0;
-        background: linear-gradient(135deg, #ffffff, #f5f5f7);
-        border-radius: 12px;
-        margin-bottom: 30px;
+        background-color: #F8F9FA;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Backend API URL (adjust based on deployment)
-API_URL = "http://localhost:8000/analyze"  # Replace with deployed URL (e.g., Replit, Railway)
-
-def analyze_data(file):
-    files = {"file": (file.name, file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
-    response = requests.post(API_URL, files=files, timeout=30)
-    if response.status_code == 200:
-        return pd.DataFrame(response.json()["data"])
-    else:
-        st.error(f"Error: {response.json().get('message', 'Failed to analyze data')}")
+# Function to fetch Excel data from OneDrive/SharePoint link
+def fetch_excel_data(link):
+    try:
+        # Convert sharing link to direct download link
+        download_url = link.replace("/personal/", "/guestaccess.aspx?docid=").replace("/g/", "/r/")
+        response = requests.get(download_url, allow_redirects=True)
+        if response.status_code == 200:
+            # Read Excel file directly from response content
+            df = pd.read_excel(response.content)
+            return df
+        else:
+            st.error("Failed to fetch Excel file. Please check the link.")
+            return None
+    except Exception as e:
+        st.error(f"Error fetching Excel data: {str(e)}")
         return None
 
-def main():
-    st.markdown('<div class="header-section"><h1>Evalia</h1><h3>Applicant Analysis Platform</h3></div>', unsafe_allow_html=True)
-    
-    uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
-    
-    if st.button("Analyze Data"):
-        if uploaded_file:
-            with st.spinner("Analyzing data..."):
-                df = analyze_data(uploaded_file)
-                if df is not None:
-                    st.session_state['applicants'] = df
+# Function to analyze applicants
+def analyze_applicants(df):
+    results = []
+    for index, row in df.iterrows():
+        # BMI Analysis
+        bmi = row.get('BMI', 0)
+        level = "Low" if bmi > 25 else "High"  # Default to High if BMI <= 25
+
+        # Experience Analysis (rule-based)
+        years = row.get('Years_of_Experience', 0)
+        description = row.get('Experience_Description', '')
+        
+        # Simple rule-based scoring
+        experience_score = 0
+        if years > 5:
+            experience_score += 50
+        elif years > 2:
+            experience_score += 30
         else:
-            st.error("Please upload an Excel file")
+            experience_score += 10
 
-    if 'applicants' in st.session_state:
-        df = st.session_state['applicants']
-        st.subheader("Applicant Analysis Results")
+        # Keyword-based scoring for description
+        keywords = ['leadership', 'management', 'project', 'team', 'development']
+        description_score = sum(10 for keyword in keywords if keyword.lower() in str(description).lower())
+        total_score = experience_score + description_score
+
+        # Adjust level based on experience score
+        if total_score < 30:
+            level = "Low"
+            reason = f"Low experience score ({total_score}): Limited years ({years}) and few relevant keywords in description."
+        elif total_score < 60:
+            level = "Mid"
+            reason = f"Moderate experience score ({total_score}): {years} years with some relevant experience."
+        else:
+            level = "High"
+            reason = f"High experience score ({total_score}): {years} years with strong relevant experience."
+
+        # Prepare action buttons
+        email = row.get('Email', '')
+        name = row.get('Name', 'Applicant')
+        email_subject = quote(f"Application Review for {name}")
+        email_body = quote(f"Dear {name},\n\nWe have reviewed your application. Your assigned level is {level}.\nReason: {reason}\n\nBest regards,\nEvalia Team")
+        email_link = f"mailto:{email}?subject={email_subject}&body={email_body}"
         
-        available_columns = ['ApplicationDate', 'FirstName', 'LastName', 'Position', 'Department', 
-                           'Height_cm', 'Weight_kg', 'BMI', 'Level', 'Reason', 'Email']
-        display_df = df[[col for col in available_columns if col in df.columns]]
-        st.dataframe(display_df, use_container_width=True)
-        
-        for index, row in df.iterrows():
-            with st.container():
-                st.markdown(f"""
+        teams_link = "https://teams.microsoft.com/l/meeting/new"
+
+        results.append({
+            'Name': name,
+            'Level': level,
+            'Reason': reason,
+            'Email_Link': email_link,
+            'Teams_Link': teams_link
+        })
+    
+    return results
+
+# Streamlit app layout
+st.title("Evalia - Applicant Evaluation")
+st.markdown("A clean, modern applicant analysis tool.")
+
+# Input for Excel link
+excel_link = st.text_input("Paste Microsoft Excel Online (OneDrive/SharePoint) Link", 
+                         value="https://bdmsgroup-my.sharepoint.com/:x:/g/personal/recruitment_bdms_co_th/EemR4Mg1E_pFr41PR8vBKPEB2GM_vy3iSfXv6BqWKQE58A?e=7Udc0G")
+
+if st.button("Fetch & Analyze"):
+    if excel_link:
+        with st.spinner("Fetching and analyzing data..."):
+            df = fetch_excel_data(excel_link)
+            if df is not None:
+                results = analyze_applicants(df)
+                
+                # Display results
+                st.subheader("Applicant Analysis Results")
+                for applicant in results:
+                    st.markdown(f"""
                     <div class="applicant-card">
-                        <h3>{row.get('FirstName', '')} {row.get('LastName', '')}</h3>
-                        <p><strong>Application Date:</strong> {row.get('ApplicationDate', '')}</p>
-                        <p><strong>Position:</strong> {row.get('Position', '')}</p>
-                        <p><strong>Department:</strong> {row.get('Department', '')}</p>
-                        <p><strong>Height:</strong> {row.get('Height_cm', 0)} cm</p>
-                        <p><strong>Weight:</strong> {row.get('Weight_kg', 0)} kg</p>
-                        <p><strong>BMI:</strong> {row.get('BMI', 0)}</p>
-                        <p><strong>Level:</strong> {row.get('Level', '')}</p>
-                        <p><strong>Reason:</strong> {row.get('Reason', '')}</p>
+                        <h3>{applicant['Name']}</h3>
+                        <p><strong>Level:</strong> {applicant['Level']}</p>
+                        <p><strong>Reason:</strong> {applicant['Reason']}</p>
+                        <a href="{applicant['Email_Link']}" target="_blank"><button>Send Email</button></a>
+                        <a href="{applicant['Teams_Link']}" target="_blank"><button>Schedule Interview</button></a>
                     </div>
-                """, unsafe_allow_html=True)
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    email = row.get('Email', 'applicant@example.com')
-                    subject = f"Evalia: Application Review - {row.get('FirstName', '')} {row.get('LastName', '')}"
-                    body = f"Dear {row.get('FirstName', '')},\n\nThank you for your application for {row.get('Position', '')}..."
-                    mailto_link = f"mailto:{email}?subject={subject}&body={body}"
-                    st.markdown(f'<a href="{mailto_link}" target="_blank"><button>Send Email</button></a>', 
-                              unsafe_allow_html=True)
-                
-                with col2:
-                    teams_link = "https://teams.microsoft.com/l/meeting/new"
-                    st.markdown(f'<a href="{teams_link}" target="_blank"><button>Schedule Interview</button></a>', 
-                              unsafe_allow_html=True)
+                    """, unsafe_allow_html=True)
+    else:
+        st.error("Please provide a valid Excel link.")
 
-if __name__ == "__main__":
-    main()
+# Add some padding at the bottom
+st.markdown("<br><br>", unsafe_allow_html=True)
