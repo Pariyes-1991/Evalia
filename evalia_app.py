@@ -3,17 +3,73 @@ import pandas as pd
 import requests
 import io
 
-st.set_page_config(page_title="Evalia", page_icon="💼", layout="wide")
+# กำหนดการตั้งค่าแอป
+st.set_page_config(
+    page_title="Evalute + AI",
+    page_icon=":rocket:",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-st.markdown("""
-    <h1 style='text-align: center; color: #007BFF;'>Evalia</h1>
-    <p style='text-align: center;'>Applicant Analyzer with Extended Rule-Based Keywords for Healthcare Industry</p>
-""", unsafe_allow_html=True)
+# สไตล์ CSS ทันสมัยแบบ Grok
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #e0e0e0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .stHeader {
+        background-color: #0a0a1a;
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+    }
+    .stButton>button {
+        background-color: #00aaff;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    .stButton>button:hover {
+        background-color: #0088cc;
+        transform: scale(1.05);
+    }
+    .card {
+        background: #2a2a3e;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    h1, h2, h3, h4 {
+        color: #00d4ff;
+        font-weight: 600;
+    }
+    ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    ul li {
+        margin: 5px 0;
+    }
+    a {
+        text-decoration: none;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
+# หัวข้อและคำอธิบาย
+st.markdown('<div class="stHeader"><h1>Evalute + AI</h1><p>Applicant Analyzer with Extended Rule-Based Keywords</p></div>', unsafe_allow_html=True)
 st.divider()
 
 # การเลือกวิธีการนำเข้าข้อมูล
-upload_option = st.radio("Choose data input method:", ("Upload Excel File", "Provide Online Excel Link"))
+upload_option = st.radio("Choose data input method:", ("Upload Excel File", "Provide Online Excel Link"), horizontal=True)
 
 df = None
 if upload_option == "Upload Excel File":
@@ -148,22 +204,24 @@ if df is not None:
     # แสดงผลผู้สมัครที่กรองแล้ว
     st.subheader("🎯 Analyzed Applicants")
     for idx, row in filtered_df.iterrows():
+        experience = row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', 'N/A')
         st.markdown(f"""
-            <div style='border:1px solid #ccc; border-radius:10px; padding:10px; margin-bottom:10px;'>
-                <h4 style='color:#007BFF;'>{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}</h4>
+            <div class="card">
+                <h4 style='color:#00d4ff;'>{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}</h4>
                 <ul>
-                    <li>BMI: <b>{row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</b></li>
-                    <li>Info Level: <b>{row['Info Level']}</b> — {row['Info Reason']}</li>
-                    <li>Experience Level: <b>{row['Exp Level']}</b> — {row['Exp Reason']}</li>
-                    <li>Position: <b>{row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')}</b></li>
-                    <li>Department: <b>{row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</b></li>
-                    <li>TOEIC Score: <b>{row.get('TOEIC Score (ถ้ามี)', 'N/A')}</b></li>
+                    <li><b>BMI:</b> {row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</li>
+                    <li><b>Info Level:</b> {row['Info Level']} — {row['Info Reason']}</li>
+                    <li><b>Experience Level:</b> {row['Exp Level']} — {row['Exp Reason']}</li>
+                    <li><b>Position:</b> {row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')}</li>
+                    <li><b>Department:</b> {row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</li>
+                    <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
+                    <li><b>Experience Details:</b> {experience}</li>
                 </ul>
-                <a href="mailto:?subject=Applicant: {row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}&body=Please review this applicant." target="_blank">
-                    <button style='background:#007BFF; color:white; padding:5px 10px; border:none; border-radius:5px;'>📧 Send Email</button>
+                <a href="mailto:?subject=แจ้งนัดสัมภาษณ์งานกับ BDMS&body=เรียนคุณ {row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}%0D%0A%0D%0Aขอบคุณที่สนใจและสมัครงานในตำแหน่ง {row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')} กับทาง BDMS%0D%0Aทางเราได้รับใบสมัครของคุณแล้ว และขอเชิญคุณเข้าร่วมสัมภาษณ์งาน%0D%0A%0D%0Aวัน/เวลา: 20 กรกฎาคม 2568, 10:00 น.%0D%0Aสถานที่/ช่องทางสัมภาษณ์: Microsoft Teams%0D%0Aผู้สัมภาษณ์: HR Manager%0D%0A%0D%0Aกรุณายืนยันการเข้าร่วมสัมภาษณ์โดยการตอบกลับอีเมลนี้%0D%0Aหากมีข้อสงสัยหรือต้องการเปลี่ยนแปลงเวลา กรุณาติดต่อ 123-456-7890%0D%0A%0D%0Aขอขอบคุณและหวังว่าจะได้พบคุณในวันสัมภาษณ์%0D%0A%0D%0Aขอแสดงความนับถือ," target="_blank">
+                    <button>📧 Send Interview Invite</button>
                 </a>
                 <a href="https://teams.microsoft.com/l/meeting/new" target="_blank">
-                    <button style='background:#28a745; color:white; padding:5px 10px; border:none; border-radius:5px; margin-left:10px;'>📅 Schedule Interview</button>
+                    <button style='background:#28a745; margin-left:10px;'>📅 Schedule Interview</button>
                 </a>
             </div>
         """, unsafe_allow_html=True)
