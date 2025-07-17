@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 import requests
 import io
-import plotly.express as px
-import plotly.graph_objects as go
 
 st.set_page_config(page_title="Evalia", page_icon="💼", layout="wide")
 
@@ -21,16 +19,19 @@ df = None
 if upload_option == "Upload Excel File":
     uploaded_file = st.file_uploader("Upload your Excel file (.xlsx)", type=["xlsx"])
     if uploaded_file is not None:
-        df = pd.read_excel(uploaded_file)
+        try:
+            df = pd.read_excel(uploaded_file)
+        except Exception as e:
+            st.error(f"Error reading uploaded file: {e}")
 elif upload_option == "Provide Online Excel Link":
     excel_link = st.text_input("🔗 Paste your Microsoft Excel Online Link:")
     if excel_link:
         try:
-            response = requests.get(excel_link, stream=True)
+            response = requests.get(excel_link, stream=True, timeout=10)
             response.raise_for_status()
             df = pd.read_excel(io.BytesIO(response.content))
         except Exception as e:
-            st.error(f"Error fetching Excel: {e}. Please ensure the link is publicly accessible or upload the file directly.")
+            st.error(f"Error fetching Excel from link: {e}. The SharePoint link may require authentication. Please upload the file directly or ensure the link is publicly accessible.")
 
 if df is not None:
     st.success("Data loaded successfully!")
@@ -45,7 +46,8 @@ if df is not None:
                 return None
             bmi = weight / ((height / 100) ** 2)
             return round(bmi, 2)
-        except:
+        except Exception as e:
+            st.warning(f"Error calculating BMI for a row: {e}")
             return None
 
     # ฟังก์ชันกำหนดระดับ BMI
@@ -119,7 +121,7 @@ if df is not None:
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        position_options = ['All'] + list(df['ตำแหน่งงานที่ท่านสนใจ'].unique())
+        position_options = ['All'] + list(df['ตำแหน่งงานที่ท่านสนใจ'].dropna().unique())
         selected_position = st.selectbox("Position", position_options)
     with col2:
         exp_options = ['All', 'มากกว่า 10ปี', '7-10 ปี', '4-6 ปี', '1-3 ปี']
@@ -166,29 +168,22 @@ if df is not None:
             </div>
         """, unsafe_allow_html=True)
 
-    # กราฟ
+    # กราฟ (ใช้ st.write แทนชั่วคราว)
     st.subheader("📊 Data Visualizations")
-
-    # กราฟ 1: จำนวนผู้สมัครตามตำแหน่งงาน
+    st.write("### Number of Applicants by Position")
     position_counts = filtered_df['ตำแหน่งงานที่ท่านสนใจ'].value_counts().reset_index()
     position_counts.columns = ['Position', 'Count']
-    fig1 = px.bar(position_counts, x='Position', y='Count', title="Number of Applicants by Position",
-                  color='Position', color_discrete_sequence=px.colors.qualitative.Plotly)
-    st.plotly_chart(fig1, use_container_width=True)
+    st.write(position_counts)
 
-    # กราฟ 2: การกระจายของประสบการณ์
+    st.write("### Experience Distribution")
     exp_counts = filtered_df['Experience_Years'].value_counts().reset_index()
     exp_counts.columns = ['Experience', 'Count']
-    fig2 = px.pie(exp_counts, names='Experience', values='Count', title="Experience Distribution",
-                  color_discrete_sequence=px.colors.qualitative.Pastel1)
-    st.plotly_chart(fig2, use_container_width=True)
+    st.write(exp_counts)
 
-    # กราฟ 3: การกระจายของ BMI Level
+    st.write("### BMI Level Distribution")
     bmi_counts = filtered_df['Info Level'].value_counts().reset_index()
     bmi_counts.columns = ['BMI Level', 'Count']
-    fig3 = px.bar(bmi_counts, x='BMI Level', y='Count', title="BMI Level Distribution",
-                  color='BMI Level', color_discrete_sequence=px.colors.qualitative.Set2)
-    st.plotly_chart(fig3, use_container_width=True)
+    st.write(bmi_counts)
 
 else:
     st.info("Please upload a file or paste an Excel Online link to begin.")
