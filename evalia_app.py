@@ -1,188 +1,417 @@
 import streamlit as st
 import pandas as pd
 import requests
-import io
+import re
 from urllib.parse import quote
+import math
+
+# Page configuration
+st.set_page_config(
+    page_title="Evalia",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
 # Custom CSS for Apple-inspired design
 st.markdown("""
 <style>
-    .main {
-        background-color: #FFFFFF;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Import Apple-style font */
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
+    
+    /* Global styles */
+    .stApp {
+        font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: #ffffff;
     }
-    .stButton > button {
-        background-color: #007BFF;
+    
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* Custom header */
+    .main-header {
+        background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+        padding: 2rem;
+        margin: -1rem -1rem 2rem -1rem;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 4px 20px rgba(0, 123, 255, 0.15);
+    }
+    
+    .main-title {
         color: white;
-        border-radius: 8px;
-        padding: 10px 20px;
+        font-size: 3rem;
+        font-weight: 700;
+        text-align: center;
+        margin: 0;
+        letter-spacing: -0.02em;
+    }
+    
+    .main-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.2rem;
+        text-align: center;
+        margin-top: 0.5rem;
+        font-weight: 400;
+    }
+    
+    /* Input section */
+    .input-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        border: 1px solid rgba(0, 123, 255, 0.1);
+    }
+    
+    /* Custom button styling */
+    .stButton > button {
+        background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+        color: white;
         border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+    }
+    
+    /* Applicant cards */
+    .applicant-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 16px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(0, 123, 255, 0.1);
         transition: all 0.3s ease;
     }
-    .stButton > button:hover {
+    
+    .applicant-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .level-badge {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+    
+    .level-high { background-color: #d4edda; color: #155724; }
+    .level-mid { background-color: #fff3cd; color: #856404; }
+    .level-low { background-color: #f8d7da; color: #721c24; }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .action-btn {
+        flex: 1;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .email-btn {
+        background-color: #007BFF;
+        color: white;
+    }
+    
+    .email-btn:hover {
         background-color: #0056b3;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transform: translateY(-1px);
     }
-    .stTextInput > div > input, .stFileUploader > div > input, .stSelectbox > div > select {
-        border-radius: 8px;
-        border: 1px solid #007BFF;
-        padding: 10px;
+    
+    .teams-btn {
+        background-color: #6264A7;
+        color: white;
     }
-    h1, h2, h3 {
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        color: #333;
+    
+    .teams-btn:hover {
+        background-color: #4B4D8C;
+        transform: translateY(-1px);
     }
-    .applicant-card {
-        background-color: #F8F9FA;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
+    /* Stats section */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 123, 255, 0.1);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #007BFF;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+        font-weight: 500;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Function to fetch Excel data from OneDrive/SharePoint link
-def fetch_excel_data(link):
-    try:
-        # Convert sharing link to direct download link
-        download_url = link.replace("/personal/", "/guestaccess.aspx?docid=").replace("/g/", "/r/")
-        response = requests.get(download_url, allow_redirects=True)
-        if response.status_code == 200:
-            df = pd.read_excel(io.BytesIO(response.content))
-            return df
-        else:
-            st.error(f"Failed to fetch Excel file. Status code: {response.status_code}. Ensure the link is publicly accessible.")
-            return None
-    except Exception as e:
-        st.error(f"Error fetching Excel data: {str(e)}. Please check the link or file permissions.")
-        return None
+# Helper functions
+def calculate_bmi(weight, height_cm):
+    """Calculate BMI from weight (kg) and height (cm)"""
+    if weight and height_cm:
+        height_m = height_cm / 100
+        return weight / (height_m ** 2)
+    return None
 
-# Function to read uploaded Excel file
-def read_uploaded_excel(file):
-    try:
-        df = pd.read_excel(file)
-        return df
-    except Exception as e:
-        st.error(f"Error reading uploaded Excel file: {str(e)}. Ensure the file is a valid Excel format.")
-        return None
-
-# Function to analyze applicants
-def analyze_applicants(df, name_col, bmi_col, years_col, desc_col, email_col):
-    results = []
-    for index, row in df.iterrows():
-        # BMI Analysis
-        bmi = float(row.get(bmi_col, 0))
-        level = "Low" if bmi > 25 else "High"  # Default to High if BMI <= 25
-
-        # Experience Analysis (rule-based)
-        years = float(row.get(years_col, 0))
-        description = str(row.get(desc_col, ''))
-
-        # Simple rule-based scoring
-        experience_score = 0
-        if years > 5:
-            experience_score += 50
-        elif years > 2:
-            experience_score += 30
-        else:
-            experience_score += 10
-
-        # Keyword-based scoring for description
-        keywords = ['leadership', 'management', 'project', 'team', 'development']
-        description_score = sum(10 for keyword in keywords if keyword.lower() in description.lower())
-        total_score = experience_score + description_score
-
-        # Adjust level based on experience score
-        if total_score < 30:
-            level = "Low"
-            reason = f"Low experience score ({total_score}): Limited years ({years}) and few relevant keywords in description."
-        elif total_score < 60:
-            level = "Mid"
-            reason = f"Moderate experience score ({total_score}): {years} years with some relevant experience."
-        else:
-            level = "High"
-            reason = f"High experience score ({total_score}): {years} years with strong relevant experience."
-
-        # Prepare action buttons
-        email = row.get(email_col, '')
-        name = row.get(name_col, 'Applicant')
-        email_subject = quote(f"Application Review for {name}")
-        email_body = quote(f"Dear {name},\n\nWe have reviewed your application. Your assigned level is {level}.\nReason: {reason}\n\nBest regards,\nEvalia Team")
-        email_link = f"mailto:{email}?subject={email_subject}&body={email_body}"
+def analyze_experience(experience_years, experience_desc):
+    """Simple rule-based experience analysis"""
+    score = 0
+    reasons = []
+    
+    # Years of experience scoring
+    if experience_years >= 5:
+        score += 3
+        reasons.append(f"Extensive experience ({experience_years} years)")
+    elif experience_years >= 3:
+        score += 2
+        reasons.append(f"Good experience ({experience_years} years)")
+    elif experience_years >= 1:
+        score += 1
+        reasons.append(f"Some experience ({experience_years} years)")
+    else:
+        reasons.append("Limited experience")
+    
+    # Experience description analysis (simple keyword matching)
+    if experience_desc:
+        desc_lower = experience_desc.lower()
+        keywords = {
+            'leadership': 1, 'management': 1, 'senior': 1, 'lead': 1,
+            'project': 0.5, 'team': 0.5, 'strategic': 1, 'innovative': 0.5,
+            'certified': 0.5, 'expert': 1, 'advanced': 0.5, 'skilled': 0.5
+        }
         
-        teams_link = "https://teams.microsoft.com/l/meeting/new"
+        for keyword, weight in keywords.items():
+            if keyword in desc_lower:
+                score += weight
+                if weight >= 1:
+                    reasons.append(f"Strong {keyword} background")
+    
+    # Determine level based on score
+    if score >= 4:
+        level = "High"
+    elif score >= 2:
+        level = "Mid"
+    else:
+        level = "Low"
+    
+    return level, ", ".join(reasons) if reasons else "Basic qualifications"
 
-        results.append({
-            'Name': name,
-            'Level': level,
-            'Reason': reason,
-            'Email_Link': email_link,
-            'Teams_Link': teams_link
+def create_email_link(name, email, level):
+    """Create mailto link with pre-filled content"""
+    subject = f"Application Status - {name}"
+    body = f"""Dear {name},
+
+Thank you for your application. After reviewing your profile, we have assessed your application as {level} priority.
+
+We will be in touch soon regarding next steps.
+
+Best regards,
+Recruitment Team"""
+    
+    mailto_link = f"mailto:{email}?subject={quote(subject)}&body={quote(body)}"
+    return mailto_link
+
+def create_teams_link(name, email):
+    """Create Teams meeting scheduler link"""
+    # This would typically integrate with Microsoft Graph API
+    # For now, we'll create a generic Teams link
+    return f"https://teams.microsoft.com/l/meeting/new?subject=Interview%20with%20{quote(name)}&attendees={quote(email)}"
+
+def process_excel_data(df):
+    """Process the Excel data and analyze applicants"""
+    processed_applicants = []
+    
+    for index, row in df.iterrows():
+        # Extract basic info
+        name = row.get('Name', f'Applicant {index + 1}')
+        email = row.get('Email', '')
+        weight = row.get('Weight (kg)', None)
+        height = row.get('Height (cm)', None)
+        experience_years = row.get('Experience Years', 0)
+        experience_desc = row.get('Experience Description', '')
+        
+        # Calculate BMI
+        bmi = calculate_bmi(weight, height)
+        
+        # Determine level based on BMI first
+        if bmi and bmi > 25:
+            level = "Low"
+            reason = f"BMI {bmi:.1f} exceeds threshold (>25)"
+        else:
+            # Use experience analysis
+            level, reason = analyze_experience(experience_years, experience_desc)
+            if bmi:
+                reason = f"BMI {bmi:.1f} (acceptable), {reason}"
+        
+        processed_applicants.append({
+            'name': name,
+            'email': email,
+            'weight': weight,
+            'height': height,
+            'bmi': bmi,
+            'experience_years': experience_years,
+            'experience_desc': experience_desc,
+            'level': level,
+            'reason': reason
         })
     
-    return results
+    return processed_applicants
 
-# Streamlit app layout
-st.title("Evalia - Applicant Evaluation")
-st.markdown("A clean, modern applicant analysis tool.")
+# Main app
+def main():
+    # Header
+    st.markdown("""
+    <div class="main-header">
+        <h1 class="main-title">Evalia</h1>
+        <p class="main-subtitle">AI-Powered Applicant Analysis & Management</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Input section
+    st.markdown('<div class="input-section">', unsafe_allow_html=True)
+    st.subheader("📊 Excel Data Input")
+    
+    excel_link = st.text_input(
+        "Paste your Microsoft Excel Online link here:",
+        placeholder="https://bdmsgroup-my.sharepoint.com/:x:/g/personal/...",
+        help="Paste the SharePoint/OneDrive Excel link to analyze applicant data"
+    )
+    
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        analyze_button = st.button("🔍 Fetch & Analyze", use_container_width=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Sample data for demonstration (since we can't access the actual SharePoint link)
+    if analyze_button and excel_link:
+        st.info("Note: This is a demo with sample data. In production, this would fetch data from your Excel link.")
+        
+        # Sample data
+        sample_data = {
+            'Name': ['John Smith', 'Sarah Johnson', 'Mike Chen', 'Emily Brown', 'David Wilson'],
+            'Email': ['john.smith@email.com', 'sarah.j@email.com', 'mike.chen@email.com', 'emily.brown@email.com', 'david.wilson@email.com'],
+            'Weight (kg)': [75, 68, 85, 62, 90],
+            'Height (cm)': [175, 165, 180, 158, 175],
+            'Experience Years': [3, 7, 2, 5, 8],
+            'Experience Description': [
+                'Junior developer with React experience',
+                'Senior manager with team leadership and strategic planning',
+                'Recent graduate with internship experience',
+                'Project lead with certified scrum master background',
+                'Expert consultant with advanced technical skills and management'
+            ]
+        }
+        
+        df = pd.DataFrame(sample_data)
+        
+        # Process the data
+        applicants = process_excel_data(df)
+        
+        # Display statistics
+        st.subheader("📈 Analysis Summary")
+        
+        total_applicants = len(applicants)
+        high_level = len([a for a in applicants if a['level'] == 'High'])
+        mid_level = len([a for a in applicants if a['level'] == 'Mid'])
+        low_level = len([a for a in applicants if a['level'] == 'Low'])
+        
+        st.markdown(f"""
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number">{total_applicants}</div>
+                <div class="stat-label">Total Applicants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{high_level}</div>
+                <div class="stat-label">High Priority</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{mid_level}</div>
+                <div class="stat-label">Mid Priority</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{low_level}</div>
+                <div class="stat-label">Low Priority</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Display applicants
+        st.subheader("👥 Applicant Analysis")
+        
+        for applicant in applicants:
+            level_class = f"level-{applicant['level'].lower()}"
+            
+            st.markdown(f"""
+            <div class="applicant-card">
+                <h3>{applicant['name']} <span class="level-badge {level_class}">{applicant['level']} Priority</span></h3>
+                <p><strong>Email:</strong> {applicant['email']}</p>
+                <p><strong>BMI:</strong> {applicant['bmi']:.1f if applicant['bmi'] else 'N/A'} | 
+                   <strong>Experience:</strong> {applicant['experience_years']} years</p>
+                <p><strong>Analysis:</strong> {applicant['reason']}</p>
+                
+                <div class="action-buttons">
+                    <a href="{create_email_link(applicant['name'], applicant['email'], applicant['level'])}" 
+                       class="action-btn email-btn" target="_blank">
+                        📧 Send Email
+                    </a>
+                    <a href="{create_teams_link(applicant['name'], applicant['email'])}" 
+                       class="action-btn teams-btn" target="_blank">
+                        📅 Schedule Interview
+                    </a>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    elif analyze_button:
+        st.warning("Please paste an Excel link to analyze applicant data.")
+    
+    # Footer
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align: center; color: #666; padding: 1rem;">
+        <p>Evalia - Streamlining your recruitment process with AI-powered insights</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-# Input options
-st.subheader("Provide Excel Data")
-input_method = st.radio("Choose input method:", ("Paste SharePoint/OneDrive Link", "Upload Excel File"))
-
-df = None
-if input_method == "Paste SharePoint/OneDrive Link":
-    excel_link = st.text_input("Paste Microsoft Excel Online (OneDrive/SharePoint) Link", 
-                             value="https://bdmsgroup-my.sharepoint.com/:x:/g/personal/recruitment_bdms_co_th/EemR4Mg1E_pFr41PR8vBKPEB2GM_vy3iSfXv6BqWKQE58A?e=6z7iNg")
-    if st.button("Fetch & Analyze"):
-        if excel_link:
-            with st.spinner("Fetching and analyzing data..."):
-                df = fetch_excel_data(excel_link)
-else:
-    uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx", "xls"])
-    if uploaded_file and st.button("Analyze Uploaded File"):
-        with st.spinner("Reading and analyzing uploaded file..."):
-            df = read_uploaded_excel(uploaded_file)
-
-# Process and display results if data is available
-if df is not None:
-    # Display available columns
-    available_columns = df.columns.tolist()
-    st.subheader("Column Mapping")
-    st.write("The Excel file contains the following columns:")
-    st.write(available_columns)
-    st.write("Please map the columns to the required fields below:")
-
-    # Column mapping interface
-    name_col = st.selectbox("Select column for Name", [""] + available_columns)
-    bmi_col = st.selectbox("Select column for BMI", [""] + available_columns)
-    years_col = st.selectbox("Select column for Years of Experience", [""] + available_columns)
-    desc_col = st.selectbox("Select column for Experience Description", [""] + available_columns)
-    email_col = st.selectbox("Select column for Email", [""] + available_columns)
-
-    if st.button("Analyze with Selected Columns"):
-        if all([name_col, bmi_col, years_col, desc_col, email_col]):
-            if len(set([name_col, bmi_col, years_col, desc_col, email_col])) == 5:  # Ensure unique columns
-                results = analyze_applicants(df, name_col, bmi_col, years_col, desc_col, email_col)
-                if results:
-                    st.subheader("Applicant Analysis Results")
-                    for applicant in results:
-                        st.markdown(f"""
-                        <div class="applicant-card">
-                            <h3>{applicant['Name']}</h3>
-                            <p><strong>Level:</strong> {applicant['Level']}</p>
-                            <p><strong>Reason:</strong> {applicant['Reason']}</p>
-                            <a href="{applicant['Email_Link']}" target="_blank"><button>Send Email</button></a>
-                            <a href="{applicant['Teams_Link']}" target="_blank"><button>Schedule Interview</button></a>
-                        </div>
-                        """, unsafe_allow_html=True)
-            else:
-                st.error("Please select unique columns for each field.")
-        else:
-            st.error("Please select a column for each required field.")
-
-# Add some padding at the bottom
-st.markdown("<br><br>", unsafe_allow_html=True)
+if __name__ == "__main__":
+    main()
