@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 import requests
-from urllib.parse import quote
 import io
+from urllib.parse import quote
 
 # Custom CSS for Apple-inspired design
 st.markdown("""
@@ -25,7 +25,7 @@ st.markdown("""
         background-color: #0056b3;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
-    .stTextInput > div > input {
+    .stTextInput > div > input, .stFileUploader > div > input {
         border-radius: 8px;
         border: 1px solid #007BFF;
         padding: 10px;
@@ -59,6 +59,15 @@ def fetch_excel_data(link):
             return None
     except Exception as e:
         st.error(f"Error fetching Excel data: {str(e)}. Please check the link or file permissions.")
+        return None
+
+# Function to read uploaded Excel file
+def read_uploaded_excel(file):
+    try:
+        df = pd.read_excel(file)
+        return df
+    except Exception as e:
+        st.error(f"Error reading uploaded Excel file: {str(e)}. Ensure the file is a valid Excel format.")
         return None
 
 # Function to find column names case-insensitively
@@ -139,31 +148,39 @@ def analyze_applicants(df):
 st.title("Evalia - Applicant Evaluation")
 st.markdown("A clean, modern applicant analysis tool.")
 
-# Input for Excel link
-excel_link = st.text_input("Paste Microsoft Excel Online (OneDrive/SharePoint) Link", 
-                         value="https://bdmsgroup-my.sharepoint.com/:x:/g/personal/recruitment_bdms_co_th/EemR4Mg1E_pFr41PR8vBKPEB2GM_vy3iSfXv6BqWKQE58A?e=6z7iNg")
+# Input options
+st.subheader("Provide Excel Data")
+input_method = st.radio("Choose input method:", ("Paste SharePoint/OneDrive Link", "Upload Excel File"))
 
-if st.button("Fetch & Analyze"):
-    if excel_link:
-        with st.spinner("Fetching and analyzing data..."):
-            df = fetch_excel_data(excel_link)
-            if df is not None:
-                results = analyze_applicants(df)
-                if results:
-                    # Display results
-                    st.subheader("Applicant Analysis Results")
-                    for applicant in results:
-                        st.markdown(f"""
-                        <div class="applicant-card">
-                            <h3>{applicant['Name']}</h3>
-                            <p><strong>Level:</strong> {applicant['Level']}</p>
-                            <p><strong>Reason:</strong> {applicant['Reason']}</p>
-                            <a href="{applicant['Email_Link']}" target="_blank"><button>Send Email</button></a>
-                            <a href="{applicant['Teams_Link']}" target="_blank"><button>Schedule Interview</button></a>
-                        </div>
-                        """, unsafe_allow_html=True)
-    else:
-        st.error("Please provide a valid Excel link.")
+df = None
+if input_method == "Paste SharePoint/OneDrive Link":
+    excel_link = st.text_input("Paste Microsoft Excel Online (OneDrive/SharePoint) Link", 
+                             value="https://bdmsgroup-my.sharepoint.com/:x:/g/personal/recruitment_bdms_co_th/EemR4Mg1E_pFr41PR8vBKPEB2GM_vy3iSfXv6BqWKQE58A?e=6z7iNg")
+    if st.button("Fetch & Analyze"):
+        if excel_link:
+            with st.spinner("Fetching and analyzing data..."):
+                df = fetch_excel_data(excel_link)
+else:
+    uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx", "xls"])
+    if uploaded_file and st.button("Analyze Uploaded File"):
+        with st.spinner("Reading and analyzing uploaded file..."):
+            df = read_uploaded_excel(uploaded_file)
+
+# Process and display results if data is available
+if df is not None:
+    results = analyze_applicants(df)
+    if results:
+        st.subheader("Applicant Analysis Results")
+        for applicant in results:
+            st.markdown(f"""
+            <div class="applicant-card">
+                <h3>{applicant['Name']}</h3>
+                <p><strong>Level:</strong> {applicant['Level']}</p>
+                <p><strong>Reason:</strong> {applicant['Reason']}</p>
+                <a href="{applicant['Email_Link']}" target="_blank"><button>Send Email</button></a>
+                <a href="{applicant['Teams_Link']}" target="_blank"><button>Schedule Interview</button></a>
+            </div>
+            """, unsafe_allow_html=True)
 
 # Add some padding at the bottom
 st.markdown("<br><br>", unsafe_allow_html=True)
