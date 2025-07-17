@@ -163,23 +163,23 @@ st.markdown("""
     }
     
     .stat-card {
-        background: white;
+        background: #1e1e1e;
         padding: 1.5rem;
         border-radius: 12px;
         text-align: center;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(0, 123, 255, 0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        border: 1px solid #333;
     }
     
     .stat-number {
         font-size: 2rem;
         font-weight: 700;
-        color: #007BFF;
+        color: #ffffff;
         margin-bottom: 0.5rem;
     }
     
     .stat-label {
-        color: #666;
+        color: #aaa;
         font-size: 0.9rem;
         font-weight: 500;
     }
@@ -384,11 +384,14 @@ def main():
         for applicant in applicants:
             level_class = f"level-{applicant['level'].lower()}"
             
+            # Format BMI display safely
+            bmi_display = f"{applicant['bmi']:.1f}" if applicant['bmi'] is not None else 'N/A'
+            
             st.markdown(f"""
             <div class="applicant-card">
                 <h3>{applicant['name']} <span class="level-badge {level_class}">{applicant['level']} Priority</span></h3>
                 <p><strong>Email:</strong> {applicant['email']}</p>
-                <p><strong>BMI:</strong> {applicant['bmi']:.1f if applicant['bmi'] else 'N/A'} | 
+                <p><strong>BMI:</strong> {bmi_display} | 
                    <strong>Experience:</strong> {applicant['experience_years']} years</p>
                 <p><strong>Analysis:</strong> {applicant['reason']}</p>
                 
@@ -411,7 +414,7 @@ def main():
     # Footer
     st.markdown("---")
     st.markdown("""
-    <div style="text-align: center; color: #666; padding: 1rem;">
+    <div style="text-align: center; color: #aaa; padding: 1rem;">
         <p>Evalia - Streamlining your recruitment process with AI-powered insights</p>
     </div>
     """, unsafe_allow_html=True)
