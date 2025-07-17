@@ -11,42 +11,43 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# สไตล์ CSS ทันสมัยแบบ Grok
+# สไตล์ CSS ธีมขาวดำ
 st.markdown(
     """
     <style>
     .stApp {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        color: #e0e0e0;
+        background-color: #333333;
+        color: #FFFFFF;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     .stHeader {
-        background-color: #0a0a1a;
+        background-color: #000000;
         padding: 10px;
         border-radius: 10px;
         text-align: center;
     }
     .stButton>button {
-        background-color: #00aaff;
-        color: white;
-        border: none;
+        background-color: #FFFFFF;
+        color: #000000;
+        border: 1px solid #000000;
         padding: 8px 16px;
         border-radius: 5px;
         transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #0088cc;
+        background-color: #000000;
+        color: #FFFFFF;
         transform: scale(1.05);
     }
     .card {
-        background: #2a2a3e;
+        background: #444444;
         padding: 15px;
         border-radius: 10px;
         margin-bottom: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     }
     h1, h2, h3, h4 {
-        color: #00d4ff;
+        color: #FFFFFF;
         font-weight: 600;
     }
     ul {
@@ -67,27 +68,6 @@ st.markdown(
 # หัวข้อและคำอธิบาย
 st.markdown('<div class="stHeader"><h1>Evalia : Evalute + AI Applicant Analyzer with Extended Rule-Based Keywords</h1></div>', unsafe_allow_html=True)
 st.divider()
-
-# การเลือกวิธีการนำเข้าข้อมูล
-upload_option = st.radio("Choose data input method:", ("Upload Excel File", "Provide Online Excel Link"), horizontal=True)
-
-df = None
-if upload_option == "Upload Excel File":
-    uploaded_file = st.file_uploader("Upload your Excel file (.xlsx)", type=["xlsx"])
-    if uploaded_file is not None:
-        try:
-            df = pd.read_excel(uploaded_file)
-        except Exception as e:
-            st.error(f"Error reading uploaded file: {e}")
-elif upload_option == "Provide Online Excel Link":
-    excel_link = st.text_input("Paste your Microsoft Excel Online Link:")
-    if excel_link:
-        try:
-            response = requests.get(excel_link, stream=True, timeout=10)
-            response.raise_for_status()
-            df = pd.read_excel(io.BytesIO(response.content))
-        except Exception as e:
-            st.error(f"Error fetching Excel from link: {e}. The SharePoint link may require authentication. Please upload the file directly or ensure the link is publicly accessible.")
 
 if df is not None:
     st.success("Data loaded successfully!")
@@ -323,6 +303,23 @@ if df is not None:
         )), axis=1
     )
 
+    # Summary (อยู่ด้านบน)
+    st.subheader("Summary")
+    st.write("### Number of Applicants by Position")
+    position_counts = filtered_df['ตำแหน่งงานที่ท่านสนใจ'].value_counts().reset_index()
+    position_counts.columns = ['Position', 'Count']
+    st.write(position_counts)
+
+    st.write("### Experience Distribution")
+    exp_counts = filtered_df['Experience_Years'].value_counts().reset_index()
+    exp_counts.columns = ['Experience', 'Count']
+    st.write(exp_counts)
+
+    st.write("### BMI Level Distribution")
+    bmi_counts = filtered_df['Info Level'].value_counts().reset_index()
+    bmi_counts.columns = ['BMI Level', 'Count']
+    st.write(bmi_counts)
+
     # ส่วนการกรองข้อมูล
     st.subheader("Filter Applicants")
     col1, col2, col3, col4 = st.columns(4)
@@ -368,31 +365,4 @@ if df is not None:
                     <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
                     <li><b>Experience Details:</b> {experience}</li>
                 </ul>
-                <a href="mailto:?subject=แจ้งนัดสัมภาษณ์งานกับ BDMS&body=เรียนคุณ {row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}%0D%0A%0D%0Aขอบคุณที่สนใจและสมัครงานในตำแหน่ง {row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')} กับทาง BDMS%0D%0Aทางเราได้รับใบสมัครของคุณแล้ว และขอเชิญคุณเข้าร่วมสัมภาษณ์งาน%0D%0A%0D%0Aวัน/เวลา: 20 กรกฎาคม 2568, 10:00 น.%0D%0Aสถานที่/ช่องทางสัมภาษณ์: Microsoft Teams%0D%0Aผู้สัมภาษณ์: HR Manager%0D%0A%0D%0Aกรุณายืนยันการเข้าร่วมสัมภาษณ์โดยการตอบกลับอีเมลนี้%0D%0Aหากมีข้อสงสัยหรือต้องการเปลี่ยนแปลงเวลา กรุณาติดต่อ 123-456-7890%0D%0A%0D%0Aขอขอบคุณและหวังว่าจะได้พบคุณในวันสัมภาษณ์%0D%0A%0D%0Aขอแสดงความนับถือ," target="_blank">
-                    <button>Send Interview Invite</button>
-                </a>
-                <a href="https://teams.microsoft.com/l/meeting/new" target="_blank">
-                    <button style='background:#28a745; margin-left:10px;'>Schedule Interview</button>
-                </a>
-            </div>
-        """, unsafe_allow_html=True)
-
-    # กราฟ (ใช้ st.write แทนชั่วคราว)
-    st.subheader("Summary")
-    st.write("### Number of Applicants by Position")
-    position_counts = filtered_df['ตำแหน่งงานที่ท่านสนใจ'].value_counts().reset_index()
-    position_counts.columns = ['Position', 'Count']
-    st.write(position_counts)
-
-    st.write("### Experience Distribution")
-    exp_counts = filtered_df['Experience_Years'].value_counts().reset_index()
-    exp_counts.columns = ['Experience', 'Count']
-    st.write(exp_counts)
-
-    st.write("### BMI Level Distribution")
-    bmi_counts = filtered_df['Info Level'].value_counts().reset_index()
-    bmi_counts.columns = ['BMI Level', 'Count']
-    st.write(bmi_counts)
-
-else:
-    st.info("Please upload a file or paste an Excel Online link to begin.")
+                <a href="mailto:?subject=แจ้งนัดสัมภาษณ์งานกับ BDMS&body=เรียนคุณ {row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}%0D%0A%0D%0Aขอบคุณที่สนใจและสมัครงานในตำแหน่ง {row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')} กับทาง BDMS%0D%0Aทางเราได้รับใบสมัครของคุณแล้ว และขอเชิญคุณเข้าร่วมสัมภาษณ์งาน%0D%0A%0D%0Aวัน/เวลา: 20 กรกฎาคม 2568, 10:00 น.%0D%0Aสถานที่/ช่องทางสัมภาษณ์: Microsoft Teams%0D%0Aผู้สัมภาษณ์: HR Manager%0D%0A%0D%0Aกรุณายืนยันการเข้าร่วมสัมภาษ
