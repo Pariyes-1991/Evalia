@@ -106,9 +106,32 @@ def main():
         for index, row in df.iterrows():
             with st.container():
                 st.markdown(f"""
-                <div class="applicant-card">
-                    <h3>{row.get('FirstName', '')} {row.get('LastName', '')}</h3>
-                    <p><strong>Application Date:</strong> {row.get('ApplicationDate', '')}</p>
-                    <p><strong>Position:</strong> {row.get('Position', '')}</p>
-                    <p><strong>Department:</strong> {row.get('Department', '')}</p>
-                    <p><strong>
+                    <div class="applicant-card">
+                        <h3>{row.get('FirstName', '')} {row.get('LastName', '')}</h3>
+                        <p><strong>Application Date:</strong> {row.get('ApplicationDate', '')}</p>
+                        <p><strong>Position:</strong> {row.get('Position', '')}</p>
+                        <p><strong>Department:</strong> {row.get('Department', '')}</p>
+                        <p><strong>Height:</strong> {row.get('Height_cm', 0)} cm</p>
+                        <p><strong>Weight:</strong> {row.get('Weight_kg', 0)} kg</p>
+                        <p><strong>BMI:</strong> {row.get('BMI', 0)}</p>
+                        <p><strong>Level:</strong> {row.get('Level', '')}</p>
+                        <p><strong>Reason:</strong> {row.get('Reason', '')}</p>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    email = row.get('Email', 'applicant@example.com')
+                    subject = f"Evalia: Application Review - {row.get('FirstName', '')} {row.get('LastName', '')}"
+                    body = f"Dear {row.get('FirstName', '')},\n\nThank you for your application for {row.get('Position', '')}..."
+                    mailto_link = f"mailto:{email}?subject={subject}&body={body}"
+                    st.markdown(f'<a href="{mailto_link}" target="_blank"><button>Send Email</button></a>', 
+                              unsafe_allow_html=True)
+                
+                with col2:
+                    teams_link = "https://teams.microsoft.com/l/meeting/new"
+                    st.markdown(f'<a href="{teams_link}" target="_blank"><button>Schedule Interview</button></a>', 
+                              unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    main()
