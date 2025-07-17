@@ -365,4 +365,14 @@ if df is not None:
                     <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
                     <li><b>Experience Details:</b> {experience}</li>
                 </ul>
-                <a href="mailto:?subject=แจ้งนัดสัมภาษณ์งานกับ BDMS&body=เรียนคุณ {row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}%0D%0A%0D%0Aขอบคุณที่สนใจและสมัครงานในตำแหน่ง {row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')} กับทาง BDMS%0D%0Aทางเราได้รับใบสมัครของคุณแล้ว และขอเชิญคุณเข้าร่วมสัมภาษณ์งาน%0D%0A%0D%0Aวัน/เวลา: 20 กรกฎาคม 2568, 10:00 น.%0D%0Aสถานที่/ช่องทางสัมภาษณ์: Microsoft Teams%0D%0Aผู้สัมภาษณ์: HR Manager%0D%0A%0D%0Aกรุณายืนยันการเข้าร่วมสัมภาษ
+                <a href="mailto:?subject=แจ้งนัดสัมภาษณ์งานกับ BDMS&body=เรียนคุณ {row.get('ชื่อ (Name)', 'Unknown')}%20{row.get('ชื่อสกุล (Surname)', '')}%0D%0A%0D%0Aขอบคุณที่สนใจและสมัครงานในตำแหน่ง%20{row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')}%20กับทาง%20BDMS%0D%0Aทางเราได้รับใบสมัครของคุณแล้ว%20และขอเชิญคุณเข้าร่วมสัมภาษณ์งาน%0D%0A%0D%0Aวัน/เวลา:%2020%20กรกฎาคม%202568,%2010:00%20น.%0D%0Aสถานที่/ช่องทางสัมภาษณ์:%20Microsoft%20Teams%0D%0Aผู้สัมภาษณ์:%20HR%20Manager%0D%0A%0D%0Aกรุณายืนยันการเข้าร่วมสัมภาษณ์โดยการตอบกลับอีเมลนี้%0D%0Aหากมีข้อสงสัยหรือต้องการเปลี่ยนแปลงเวลา%20กรุณาติดต่อ%20123-456-7890%0D%0A%0D%0Aขอขอบคุณและหวังว่าจะได้พบคุณในวันสัมภาษณ์%0D%0A%0D%0Aขอแสดงความนับถือ" target="_blank">
+                    <button>Send Interview Invite</button>
+                </a>
+                <a href="https://teams.microsoft.com/l/meeting/new" target="_blank">
+                    <button style='background:#FFFFFF; color:#000000; margin-left:10px;'>Schedule Interview</button>
+                </a>
+            </div>
+        """, unsafe_allow_html=True)
+
+else:
+    st.info("Please upload a file or paste an Excel Online link to begin.")
