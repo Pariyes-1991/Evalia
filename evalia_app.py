@@ -5,8 +5,8 @@ import io
 
 # กำหนดการตั้งค่าแอป
 st.set_page_config(
-    page_title="Evalute + AI",
-    page_icon=":rocket:",
+    page_title="Evalia : Evalute + AI Applicant Analyzer with Extended Rule-Based Keywords",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -65,7 +65,7 @@ st.markdown(
 )
 
 # หัวข้อและคำอธิบาย
-st.markdown('<div class="stHeader"><h1>Evalute + AI</h1><p>Applicant Analyzer with Extended Rule-Based Keywords</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="stHeader"><h1>Evalia : Evalute + AI Applicant Analyzer with Extended Rule-Based Keywords</h1></div>', unsafe_allow_html=True)
 st.divider()
 
 # การเลือกวิธีการนำเข้าข้อมูล
@@ -80,7 +80,7 @@ if upload_option == "Upload Excel File":
         except Exception as e:
             st.error(f"Error reading uploaded file: {e}")
 elif upload_option == "Provide Online Excel Link":
-    excel_link = st.text_input("🔗 Paste your Microsoft Excel Online Link:")
+    excel_link = st.text_input("Paste your Microsoft Excel Online Link:")
     if excel_link:
         try:
             response = requests.get(excel_link, stream=True, timeout=10)
@@ -132,17 +132,168 @@ if df is not None:
 
             keywords_high = [
                 "lead", "manager", "senior", "expert", "specialist", "consultant", "director", "chief", "head", "principal",
-                "ผู้นำ", "ผู้จัดการ", "อาวุโส", "ผู้เชี่ยวชาญ", "ที่ปรึกษา", "ผู้อำนวยการ", "หัวหน้า", "เจ้าหน้าที่บริหาร",
-                "doctor", "physician", "surgeon", "anesthetist", "radiologist", "pediatrician", "neurosurgeon", "cardiologist",
-                "แพทย์", "หมอ", "ศัลยแพทย์", "วิสัญญีแพทย์", "รังสีแพทย์", "กุมารแพทย์", "ศัลยแพทย์สมอง", "อายุรแพทย์", "แพทย์ผู้เชี่ยวชาญ",
-                "nurse practitioner", "head nurse", "chief nurse",
-                "พยาบาลวิชาชีพ", "หัวหน้าพยาบาล", "ผู้บริหารพยาบาล"
+                "supervisor", "executive", "administrator", "coordinator", "overseer", "leader", "authority", "master",
+                "physician", "surgeon", "anesthetist", "radiologist", "pediatrician", "neurosurgeon", "cardiologist",
+                "orthopedist", "dermatologist", "endocrinologist", "gastroenterologist", "hematologist", "neurologist",
+                "oncologist", "ophthalmologist", "otolaryngologist", "pathologist", "psychiatrist", "urologist",
+                "doctor", "medic", "clinician", "therapist", "practitioner", "specialist", "consultant",
+                "nurse", "registered nurse", "licensed nurse", "practical nurse", "head nurse", "chief nurse",
+                "nursing supervisor", "clinical nurse", "emergency nurse", "pediatric nurse", "surgical nurse",
+                "pharmacist", "pharmacy manager", "drug specialist", "dispensing chemist", "clinical pharmacist",
+                "technologist", "medical technologist", "lab technician", "radiographer", "ultrasound technician",
+                "x-ray technician", "mri technologist", "ct technologist", "sonographer", "echocardiographer",
+                "therapist", "physical therapist", "occupational therapist", "speech therapist", "respiratory therapist",
+                "rehabilitation specialist", "counselor", "psychologist", "social worker", "case manager",
+                "administrator", "healthcare administrator", "hospital administrator", "medical director",
+                "chief medical officer", "chief nursing officer", "operations manager", "hr manager", "recruiter",
+                "trainer", "educator", "instructor", "mentor", "coach", "advisor", "guide", "facilitator",
+                "assistant", "medical assistant", "nursing assistant", "pharmacy assistant", "lab assistant",
+                "junior", "trainee", "intern", "apprentice", "beginner", "novice", "associate", "aide",
+                "support", "helper", "attendant", "orderly", "caregiver", "aide-de-camp", "backup", "relief",
+                "operator", "technician", "specialist", "expert", "professional", "practitioner", "clinician",
+                "surgeon", "anesthesiologist", "radiologist", "pathologist", "cardiologist", "dermatologist",
+                "endocrinologist", "gastroenterologist", "hematologist", "neurologist", "oncologist",
+                "ophthalmologist", "otolaryngologist", "psychiatrist", "urologist", "orthopedist",
+                "podiatrist", "geriatrician", "pulmonologist", "rheumatologist", "nephrologist",
+                "hepatologist", "allergist", "immunologist", "infectious disease specialist",
+                "critical care specialist", "emergency medicine specialist", "family medicine",
+                "internal medicine", "preventive medicine", "sports medicine", "occupational medicine",
+                "public health", "epidemiologist", "biostatistician", "health informatics specialist",
+                "health policy analyst", "quality assurance manager", "risk manager", "compliance officer",
+                "patient advocate", "health educator", "community health worker", "nutritionist",
+                "dietitian", "genetic counselor", "reproductive endocrinologist", "perinatologist",
+                "neonatologist", "pediatric surgeon", "pediatric cardiologist", "pediatric neurologist",
+                "pediatric oncologist", "pediatric ophthalmologist", "pediatric otolaryngologist",
+                "pediatric urologist", "pediatric orthopedist", "pediatric pulmonologist",
+                "pediatric rheumatologist", "pediatric nephrologist", "pediatric hepatologist",
+                "pediatric allergist", "pediatric immunologist", "pediatric infectious disease specialist",
+                "geriatric psychiatrist", "geriatric neurologist", "geriatric oncologist",
+                "geriatric ophthalmologist", "geriatric otolaryngologist", "geriatric urologist",
+                "geriatric orthopedist", "geriatric pulmonologist", "geriatric rheumatologist",
+                "geriatric nephrologist", "geriatric hepatologist", "geriatric allergist",
+                "geriatric immunologist", "geriatric infectious disease specialist",
+                "adult nurse practitioner", "family nurse practitioner", "acute care nurse practitioner",
+                "gerontological nurse practitioner", "psychiatric nurse practitioner",
+                "women’s health nurse practitioner", "neonatal nurse practitioner",
+                "pediatric nurse practitioner", "orthopedic nurse practitioner",
+                "cardiovascular nurse practitioner", "oncology nurse practitioner",
+                "emergency nurse practitioner", "surgical nurse practitioner",
+                "pharmacy technician", "pharmaceutical sales representative",
+                "clinical research coordinator", "clinical trial manager",
+                "data analyst", "biomedical engineer", "medical device specialist",
+                "healthcare IT specialist", "telemedicine coordinator", "patient navigator",
+                "care coordinator", "discharge planner", "utilization review coordinator",
+                "case management supervisor", "home health aide", "hospice worker",
+                "palliative care specialist", "wound care specialist", "infection control nurse",
+                "sterile processing technician", "endoscopy technician", "cardiac catheterization technician",
+                "electroneurodiagnostic technologist", "polysomnographic technologist",
+                "vascular technologist", "nuclear medicine technologist",
+                "radiation therapist", "dosimetrist", "medical physicist",
+                "healthcare consultant", "hospital planner", "facility manager",
+                "supply chain manager", "procurement specialist", "inventory manager",
+                "billing specialist", "coding specialist", "reimbursement analyst",
+                "revenue cycle manager", "patient account representative", "financial counselor",
+                "insurance coordinator", "claims adjuster", "peer review coordinator",
+                "quality improvement coordinator", "patient safety officer",
+                "risk management coordinator", "compliance auditor", "ethics officer",
+                "privacy officer", "security officer", "emergency preparedness coordinator",
+                "disaster response coordinator", "public relations officer", "marketing manager",
+                "business development manager", "strategic planner", "project manager",
+                "program director", "executive director", "chief executive officer",
+                "chief operating officer", "chief financial officer", "chief information officer",
+                "chief strategy officer", "chief compliance officer", "chief risk officer",
+                "chief innovation officer", "chief medical information officer",
+                "chief nursing information officer", "chief patient experience officer",
+                "chief quality officer", "chief transformation officer",
+                "vice president", "director of nursing", "director of pharmacy",
+                "director of laboratory services", "director of radiology",
+                "director of surgery", "director of emergency services",
+                "director of critical care", "director of rehabilitation",
+                "director of outpatient services", "director of inpatient services",
+                "director of behavioral health", "director of women’s services",
+                "director of pediatric services", "director of geriatric services",
+                "director of oncology services", "director of cardiology services",
+                "director of neurology services", "director of orthopedics services",
+                "director of urology services", "director of gastroenterology services",
+                "director of endocrinology services", "director of dermatology services",
+                "director of hematology services", "director of ophthalmology services",
+                "director of otolaryngology services", "director of psychiatry services",
+                "director of infectious disease services", "director of allergy services",
+                "director of immunology services", "director of rheumatology services",
+                "director of nephrology services", "director of hepatology services",
+                "director of pulmonology services", "director of critical care services",
+                "director of emergency medicine services", "director of family medicine services",
+                "director of internal medicine services", "director of preventive medicine services",
+                "director of sports medicine services", "director of occupational medicine services",
+                "director of public health services", "director of epidemiology services",
+                "director of biostatistics services", "director of health informatics services",
+                "director of health policy services", "director of quality assurance services",
+                "director of risk management services", "director of compliance services",
+                "director of patient advocacy services", "director of health education services",
+                "director of community health services", "director of nutrition services",
+                "director of genetic counseling services", "director of reproductive endocrinology services",
+                "director of perinatology services", "director of neonatology services",
+                "director of pediatric surgery services", "director of pediatric cardiology services",
+                "director of pediatric neurology services", "director of pediatric oncology services",
+                "director of pediatric ophthalmology services", "director of pediatric otolaryngology services",
+                "director of pediatric urology services", "director of pediatric orthopedics services",
+                "director of pediatric pulmonology services", "director of pediatric rheumatology services",
+                "director of pediatric nephrology services", "director of pediatric hepatology services",
+                "director of pediatric allergy services", "director of pediatric immunology services",
+                "director of pediatric infectious disease services", "director of geriatric psychiatry services",
+                "director of geriatric neurology services", "director of geriatric oncology services",
+                "director of geriatric ophthalmology services", "director of geriatric otolaryngology services",
+                "director of geriatric urology services", "director of geriatric orthopedics services",
+                "director of geriatric pulmonology services", "director of geriatric rheumatology services",
+                "director of geriatric nephrology services", "director of geriatric hepatology services",
+                "director of geriatric allergy services", "director of geriatric immunology services",
+                "director of geriatric infectious disease services"
             ]
             keywords_mid = [
                 "assist", "support", "junior", "operator", "staff", "clerk", "coordinator", "trainee",
-                "ผู้ช่วย", "สนับสนุน", "เจ้าหน้าที่", "พนักงาน", "ประสานงาน", "ฝึกงาน", "ปฏิบัติการ",
-                "registered nurse", "practical nurse", "medical assistant", "pharmacy technician", "lab technician", "radiographer",
-                "พยาบาล", "ผู้ช่วยพยาบาล", "เจ้าหน้าที่เทคนิคการแพทย์", "เภสัชกร", "ผู้ช่วยเภสัช", "เจ้าหน้าที่รังสีเทคนิค", "นักกายภาพบำบัด", "นักจิตวิทยา"
+                "helper", "attendant", "orderly", "caregiver", "aide", "backup", "relief", "associate",
+                "novice", "apprentice", "intern", "beginner", "aide-de-camp", "assistant", "deputy",
+                "subordinate", "understudy", "protégé", "learner", "student", "candidate", "applicant",
+                "registered nurse", "practical nurse", "medical assistant", "pharmacy technician",
+                "lab technician", "radiographer", "ultrasound technician", "x-ray technician",
+                "mri technologist", "ct technologist", "sonographer", "echocardiographer",
+                "physical therapist", "occupational therapist", "speech therapist",
+                "respiratory therapist", "rehabilitation assistant", "counseling assistant",
+                "psychology intern", "social work intern", "case management assistant",
+                "healthcare support worker", "nursing aide", "pharmacy aide", "lab aide",
+                "radiology aide", "therapy aide", "rehab aide", "counseling aide",
+                "social work aide", "case aide", "support staff", "junior staff",
+                "trainee nurse", "trainee pharmacist", "trainee technologist",
+                "junior therapist", "junior counselor", "junior social worker",
+                "junior case manager", "entry-level nurse", "entry-level pharmacist",
+                "entry-level technologist", "entry-level therapist", "entry-level counselor",
+                "entry-level social worker", "entry-level case manager", "assistant nurse",
+                "assistant pharmacist", "assistant technologist", "assistant therapist",
+                "assistant counselor", "assistant social worker", "assistant case manager",
+                "support nurse", "support pharmacist", "support technologist",
+                "support therapist", "support counselor", "support social worker",
+                "support case manager", "junior nurse", "junior pharmacist",
+                "junior technologist", "junior therapist", "junior counselor",
+                "junior social worker", "junior case manager", "trainee assistant",
+                "trainee support", "trainee operator", "trainee clerk",
+                "trainee coordinator", "trainee helper", "trainee attendant",
+                "trainee orderly", "trainee caregiver", "trainee aide",
+                "trainee backup", "trainee relief", "trainee associate",
+                "trainee novice", "trainee apprentice", "trainee intern",
+                "trainee beginner", "trainee candidate", "trainee applicant",
+                "junior assistant", "junior support", "junior operator",
+                "junior clerk", "junior coordinator", "junior helper",
+                "junior attendant", "junior orderly", "junior caregiver",
+                "junior aide", "junior backup", "junior relief",
+                "junior associate", "junior novice", "junior apprentice",
+                "junior intern", "junior beginner", "junior candidate",
+                "junior applicant", "entry-level assistant", "entry-level support",
+                "entry-level operator", "entry-level clerk", "entry-level coordinator",
+                "entry-level helper", "entry-level attendant", "entry-level orderly",
+                "entry-level caregiver", "entry-level aide", "entry-level backup",
+                "entry-level relief", "entry-level associate", "entry-level novice",
+                "entry-level apprentice", "entry-level intern", "entry-level beginner",
+                "entry-level candidate", "entry-level applicant"
             ]
 
             desc_lower = str(description).lower()
@@ -173,7 +324,7 @@ if df is not None:
     )
 
     # ส่วนการกรองข้อมูล
-    st.subheader("🔍 Filter Applicants")
+    st.subheader("Filter Applicants")
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
@@ -202,12 +353,12 @@ if df is not None:
     st.dataframe(filtered_df)
 
     # แสดงผลผู้สมัครที่กรองแล้ว
-    st.subheader("🎯 Analyzed Applicants")
+    st.subheader("Analyzed Applicants")
     for idx, row in filtered_df.iterrows():
         experience = row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', 'N/A')
         st.markdown(f"""
             <div class="card">
-                <h4 style='color:#00d4ff;'>{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}</h4>
+                <h4>{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}</h4>
                 <ul>
                     <li><b>BMI:</b> {row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</li>
                     <li><b>Info Level:</b> {row['Info Level']} — {row['Info Reason']}</li>
@@ -218,16 +369,16 @@ if df is not None:
                     <li><b>Experience Details:</b> {experience}</li>
                 </ul>
                 <a href="mailto:?subject=แจ้งนัดสัมภาษณ์งานกับ BDMS&body=เรียนคุณ {row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}%0D%0A%0D%0Aขอบคุณที่สนใจและสมัครงานในตำแหน่ง {row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')} กับทาง BDMS%0D%0Aทางเราได้รับใบสมัครของคุณแล้ว และขอเชิญคุณเข้าร่วมสัมภาษณ์งาน%0D%0A%0D%0Aวัน/เวลา: 20 กรกฎาคม 2568, 10:00 น.%0D%0Aสถานที่/ช่องทางสัมภาษณ์: Microsoft Teams%0D%0Aผู้สัมภาษณ์: HR Manager%0D%0A%0D%0Aกรุณายืนยันการเข้าร่วมสัมภาษณ์โดยการตอบกลับอีเมลนี้%0D%0Aหากมีข้อสงสัยหรือต้องการเปลี่ยนแปลงเวลา กรุณาติดต่อ 123-456-7890%0D%0A%0D%0Aขอขอบคุณและหวังว่าจะได้พบคุณในวันสัมภาษณ์%0D%0A%0D%0Aขอแสดงความนับถือ," target="_blank">
-                    <button>📧 Send Interview Invite</button>
+                    <button>Send Interview Invite</button>
                 </a>
                 <a href="https://teams.microsoft.com/l/meeting/new" target="_blank">
-                    <button style='background:#28a745; margin-left:10px;'>📅 Schedule Interview</button>
+                    <button style='background:#28a745; margin-left:10px;'>Schedule Interview</button>
                 </a>
             </div>
         """, unsafe_allow_html=True)
 
     # กราฟ (ใช้ st.write แทนชั่วคราว)
-    st.subheader("📊 Data Visualizations")
+    st.subheader("Summary")
     st.write("### Number of Applicants by Position")
     position_counts = filtered_df['ตำแหน่งงานที่ท่านสนใจ'].value_counts().reset_index()
     position_counts.columns = ['Position', 'Count']
