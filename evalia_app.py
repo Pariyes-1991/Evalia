@@ -22,7 +22,8 @@ st.markdown("""
     /* Global styles */
     .stApp {
         font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
-        background-color: #ffffff;
+        background-color: #121212;
+        color: #ffffff;
     }
     
     /* Hide Streamlit branding */
@@ -32,11 +33,11 @@ st.markdown("""
     
     /* Custom header */
     .main-header {
-        background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
         padding: 2rem;
         margin: -1rem -1rem 2rem -1rem;
         border-radius: 0 0 20px 20px;
-        box-shadow: 0 4px 20px rgba(0, 123, 255, 0.15);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
     
     .main-title {
@@ -49,7 +50,7 @@ st.markdown("""
     }
     
     .main-subtitle {
-        color: rgba(255, 255, 255, 0.9);
+        color: rgba(255, 255, 255, 0.7);
         font-size: 1.2rem;
         text-align: center;
         margin-top: 0.5rem;
@@ -58,46 +59,48 @@ st.markdown("""
     
     /* Input section */
     .input-section {
-        background: white;
+        background: #1e1e1e;
         padding: 2rem;
         border-radius: 16px;
-        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
         margin-bottom: 2rem;
-        border: 1px solid rgba(0, 123, 255, 0.1);
+        border: 1px solid #333;
     }
     
     /* Custom button styling */
     .stButton > button {
-        background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
-        color: white;
+        background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+        color: #121212;
         border: none;
         padding: 0.75rem 2rem;
         border-radius: 12px;
         font-weight: 600;
         font-size: 1rem;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+        box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
     }
     
     .stButton > button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+        background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%);
     }
     
     /* Applicant cards */
     .applicant-card {
-        background: white;
+        background: #1e1e1e;
         padding: 1.5rem;
         border-radius: 16px;
-        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
         margin-bottom: 1.5rem;
-        border: 1px solid rgba(0, 123, 255, 0.1);
+        border: 1px solid #333;
         transition: all 0.3s ease;
     }
     
     .applicant-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+        border: 1px solid #444;
     }
     
     .level-badge {
@@ -109,9 +112,9 @@ st.markdown("""
         margin-left: 0.5rem;
     }
     
-    .level-high { background-color: #d4edda; color: #155724; }
-    .level-mid { background-color: #fff3cd; color: #856404; }
-    .level-low { background-color: #f8d7da; color: #721c24; }
+    .level-high { background-color: #2d5a3d; color: #4caf50; }
+    .level-mid { background-color: #5a4a2d; color: #ff9800; }
+    .level-low { background-color: #5a2d2d; color: #f44336; }
     
     .action-buttons {
         display: flex;
@@ -132,12 +135,12 @@ st.markdown("""
     }
     
     .email-btn {
-        background-color: #007BFF;
-        color: white;
+        background-color: #ffffff;
+        color: #121212;
     }
     
     .email-btn:hover {
-        background-color: #0056b3;
+        background-color: #f0f0f0;
         transform: translateY(-1px);
     }
     
