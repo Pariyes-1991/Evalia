@@ -194,7 +194,7 @@ def main():
         
         available_columns = ['ApplicationDate', 'FirstName', 'LastName', 'Position', 'Department', 
                            'Height_cm', 'Weight_kg', 'BMI', 'Level', 'Reason']
-        display_df = df[[col for col for col in available_columns if col in df.columns]]
+        display_df = df[[col for col in available_columns if col in df.columns]]  # Fixed syntax
         st.dataframe(display_df, use_container_width=True)
         
         for index, row in df.iterrows():
