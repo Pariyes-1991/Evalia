@@ -25,7 +25,7 @@ st.markdown("""
         background-color: #0056b3;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
-    .stTextInput > div > input, .stFileUploader > div > input {
+    .stTextInput > div > input, .stFileUploader > div > input, .stSelectbox > div > select {
         border-radius: 8px;
         border: 1px solid #007BFF;
         padding: 10px;
@@ -51,7 +51,6 @@ def fetch_excel_data(link):
         download_url = link.replace("/personal/", "/guestaccess.aspx?docid=").replace("/g/", "/r/")
         response = requests.get(download_url, allow_redirects=True)
         if response.status_code == 200:
-            # Read Excel file directly from response content
             df = pd.read_excel(io.BytesIO(response.content))
             return df
         else:
@@ -70,27 +69,9 @@ def read_uploaded_excel(file):
         st.error(f"Error reading uploaded Excel file: {str(e)}. Ensure the file is a valid Excel format.")
         return None
 
-# Function to find column names case-insensitively
-def get_column(df, possible_names):
-    for col in df.columns:
-        if col.lower() in [name.lower() for name in possible_names]:
-            return col
-    return None
-
 # Function to analyze applicants
-def analyze_applicants(df):
+def analyze_applicants(df, name_col, bmi_col, years_col, desc_col, email_col):
     results = []
-    # Identify columns dynamically
-    name_col = get_column(df, ['Name', 'Applicant_Name', 'Full_Name'])
-    bmi_col = get_column(df, ['BMI', 'Body_Mass_Index'])
-    years_col = get_column(df, ['Years_of_Experience', 'Experience_Years', 'Years'])
-    desc_col = get_column(df, ['Experience_Description', 'Description', 'Experience'])
-    email_col = get_column(df, ['Email', 'Email_Address'])
-
-    if not all([name_col, bmi_col, years_col, desc_col, email_col]):
-        st.error("Required columns (Name, BMI, Years_of_Experience, Experience_Description, Email) not found in Excel.")
-        return []
-
     for index, row in df.iterrows():
         # BMI Analysis
         bmi = float(row.get(bmi_col, 0))
@@ -168,19 +149,40 @@ else:
 
 # Process and display results if data is available
 if df is not None:
-    results = analyze_applicants(df)
-    if results:
-        st.subheader("Applicant Analysis Results")
-        for applicant in results:
-            st.markdown(f"""
-            <div class="applicant-card">
-                <h3>{applicant['Name']}</h3>
-                <p><strong>Level:</strong> {applicant['Level']}</p>
-                <p><strong>Reason:</strong> {applicant['Reason']}</p>
-                <a href="{applicant['Email_Link']}" target="_blank"><button>Send Email</button></a>
-                <a href="{applicant['Teams_Link']}" target="_blank"><button>Schedule Interview</button></a>
-            </div>
-            """, unsafe_allow_html=True)
+    # Display available columns
+    available_columns = df.columns.tolist()
+    st.subheader("Column Mapping")
+    st.write("The Excel file contains the following columns:")
+    st.write(available_columns)
+    st.write("Please map the columns to the required fields below:")
+
+    # Column mapping interface
+    name_col = st.selectbox("Select column for Name", [""] + available_columns)
+    bmi_col = st.selectbox("Select column for BMI", [""] + available_columns)
+    years_col = st.selectbox("Select column for Years of Experience", [""] + available_columns)
+    desc_col = st.selectbox("Select column for Experience Description", [""] + available_columns)
+    email_col = st.selectbox("Select column for Email", [""] + available_columns)
+
+    if st.button("Analyze with Selected Columns"):
+        if all([name_col, bmi_col, years_col, desc_col, email_col]):
+            if len(set([name_col, bmi_col, years_col, desc_col, email_col])) == 5:  # Ensure unique columns
+                results = analyze_applicants(df, name_col, bmi_col, years_col, desc_col, email_col)
+                if results:
+                    st.subheader("Applicant Analysis Results")
+                    for applicant in results:
+                        st.markdown(f"""
+                        <div class="applicant-card">
+                            <h3>{applicant['Name']}</h3>
+                            <p><strong>Level:</strong> {applicant['Level']}</p>
+                            <p><strong>Reason:</strong> {applicant['Reason']}</p>
+                            <a href="{applicant['Email_Link']}" target="_blank"><button>Send Email</button></a>
+                            <a href="{applicant['Teams_Link']}" target="_blank"><button>Schedule Interview</button></a>
+                        </div>
+                        """, unsafe_allow_html=True)
+            else:
+                st.error("Please select unique columns for each field.")
+        else:
+            st.error("Please select a column for each required field.")
 
 # Add some padding at the bottom
 st.markdown("<br><br>", unsafe_allow_html=True)
