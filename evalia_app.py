@@ -77,9 +77,10 @@ st.markdown("""
 def load_pipeline():
     try:
         pipe = pipeline("sentiment-analysis", model="distilroberta-base-sst-2")
+        st.success("Pipeline loaded successfully with distilroberta-base-sst-2.")
         return pipe
     except Exception as e:
-        st.error(f"Error loading pipeline: {str(e)}. Falling back to rule-based analysis.")
+        st.error(f"Error loading pipeline: {str(e)}. This may be due to network issues or model availability. Falling back to rule-based analysis. Please ensure an internet connection and check https://huggingface.co/distilroberta-base-sst-2 for model status.")
         return None
 
 pipe = load_pipeline()
