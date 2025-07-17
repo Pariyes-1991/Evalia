@@ -4,69 +4,70 @@ import io
 import requests
 import re
 
-# Custom CSS for sci-fi theme (white-blue, futuristic)
+# Custom CSS for black-white theme with cool font
 st.markdown("""
 <style>
     .main {
-        background: linear-gradient(135deg, #ffffff 0%, #e6f0ff 100%);
+        background: linear-gradient(135deg, #ffffff 0%, #000000 100%);
         padding: 30px;
-        font-family: 'Roboto', sans-serif;
-        color: #1d1d1f;
+        font-family: 'Arial Black', 'Impact', sans-serif;
+        color: #ffffff;
     }
     .stButton>button {
-        background: linear-gradient(45deg, #0071e3, #00c4ff);
-        color: white;
+        background: linear-gradient(45deg, #333333, #666666);
+        color: #ffffff;
         border-radius: 20px;
         padding: 12px 24px;
-        border: none;
+        border: 2px solid #ffffff;
         font-size: 16px;
         font-weight: bold;
         text-transform: uppercase;
-        box-shadow: 0 4px 15px rgba(0, 113, 227, 0.4);
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
         transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        background: linear-gradient(45deg, #005bb5, #0099cc);
-        box-shadow: 0 6px 20px rgba(0, 113, 227, 0.6);
+        background: linear-gradient(45deg, #666666, #999999);
+        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5);
         transform: translateY(-2px);
     }
     .stTextInput>div>div>input {
         border-radius: 10px;
-        border: 1px solid #0071e3;
+        border: 2px solid #ffffff;
         padding: 12px;
         font-size: 16px;
-        background-color: #f0f8ff;
+        background-color: #222222;
+        color: #ffffff;
     }
     .stDataFrame {
         border-radius: 15px;
         overflow: hidden;
-        box-shadow: 0 5px 20px rgba(0, 113, 227, 0.3);
-        background-color: white;
+        box-shadow: 0 5px 20px rgba(255, 255, 255, 0.2);
+        background-color: #1a1a1a;
     }
     h1, h2, h3 {
-        color: #003087;
-        font-weight: 700;
-        text-shadow: 0 0 10px rgba(0, 113, 227, 0.5);
+        color: #ffffff;
+        font-weight: 900;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
     }
     .applicant-card {
-        background: rgba(255, 255, 255, 0.95);
+        background: #2d2d2d;
         border-radius: 15px;
         padding: 25px;
         margin-bottom: 25px;
-        box-shadow: 0 5px 20px rgba(0, 113, 227, 0.2);
-        border: 1px solid rgba(0, 113, 227, 0.3);
+        box-shadow: 0 5px 20px rgba(255, 255, 255, 0.1);
+        border: 1px solid #444444;
         transition: all 0.3s ease;
     }
     .applicant-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0, 113, 227, 0.4);
+        box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
     }
     .sci-fi-header {
         text-align: center;
         padding: 20px;
-        background: linear-gradient(45deg, #0071e3, #00c4ff);
+        background: #333333;
         border-radius: 15px;
-        color: white;
+        color: #ffffff;
         text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
     }
 </style>
@@ -75,22 +76,35 @@ st.markdown("""
 # Function to fetch Excel data from SharePoint link
 def fetch_excel_data(link):
     try:
-        # Convert SharePoint link to direct download
+        # Ensure the URL is valid and includes the full domain
+        if not link.startswith('https://'):
+            st.error("Invalid URL format. Please use a full HTTPS link.")
+            return None
+        
+        # Attempt to convert to download link
         download_url = re.sub(r"(\?e=.*)$", "?download=1", link)
-        response = requests.get(download_url)
+        st.write(f"Attempting to fetch from: {download_url}")  # Debug output
+        
+        response = requests.get(download_url, timeout=10)
         response.raise_for_status()
         
         excel_data = io.BytesIO(response.content)
         df = pd.read_excel(excel_data)
         return df
+    except requests.exceptions.ConnectionError as e:
+        st.error(f"Connection error: {str(e)}. Please check the URL and ensure the file is publicly accessible.")
+        return None
+    except requests.exceptions.Timeout:
+        st.error("Request timed out. Please try again later.")
+        return None
     except Exception as e:
-        st.error(f"Error fetching Excel data: {str(e)}")
+        st.error(f"Error fetching Excel data: {str(e)}. Ensure the SharePoint link is valid and accessible.")
         return None
 
 # Function to analyze applicant and assign score
 def analyze_applicant(row):
     try:
-        # Calculate BMI
+        # Calculate BMI (Height in cm to meters)
         height_m = float(row.get('Height_cm', 0)) / 100
         weight = float(row.get('Weight_kg', 0))
         bmi = weight / (height_m ** 2) if height_m > 0 else 0
@@ -103,9 +117,8 @@ def analyze_applicant(row):
             score = "Low"
             reason = "BMI exceeds 25, indicating potential health concerns"
         else:
-            # Example rule-based logic for experience/position
-            position = str(row.get('Position', '')).lower()
             experience_years = float(row.get('Experience_Years', 0))
+            position = str(row.get('Position', '')).lower()
             
             if 'senior' in position or experience_years >= 5:
                 score = "High"
