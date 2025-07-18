@@ -5,46 +5,46 @@ import io
 
 # กำหนดการตั้งค่าแอป
 st.set_page_config(
-    page_title="Evalia : Evalute + AI Applicant Analyzer with Extended Rule-Based Keywords",
+    page_title="Evalia : AI-Powered Applicant Analyzer",
     page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# สไตล์ CSS ธีมขาวดำ
+# สไตล์ CSS ธีม AI ล้ำยุค ไฮโซ (สีเงิน #C0C0C0, น้ำเงินเข้ม #1E3A8A, ขาว #FFFFFF)
 st.markdown(
     """
     <style>
     .stApp {
-        background-color: #333333;
+        background-color: #1E3A8A;
         color: #FFFFFF;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     .stHeader {
-        background-color: #000000;
+        background-color: #C0C0C0;
         padding: 10px;
         border-radius: 10px;
         text-align: center;
     }
     .stButton>button {
-        background-color: #FFFFFF;
-        color: #000000;
-        border: 1px solid #000000;
+        background-color: #C0C0C0;
+        color: #1E3A8A;
+        border: 1px solid #FFFFFF;
         padding: 8px 16px;
         border-radius: 5px;
         transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #000000;
-        color: #FFFFFF;
+        background-color: #FFFFFF;
+        color: #1E3A8A;
         transform: scale(1.05);
     }
     .card {
-        background: #444444;
+        background: #2A5298;
         padding: 15px;
         border-radius: 10px;
         margin-bottom: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 4px 8px rgba(192, 192, 192, 0.5);
     }
     h1, h2, h3, h4 {
         color: #FFFFFF;
@@ -57,6 +57,11 @@ st.markdown(
     ul li {
         margin: 5px 0;
     }
+    ul li b {
+        color: #C0C0C0;
+    }
+    .high { color: #00FF00; }
+    .low { color: #FF0000; }
     a {
         text-decoration: none;
     }
@@ -65,8 +70,13 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# เพิ่มโลโก้ (สมมติว่าคุณอัปโหลดไฟล์โลโก้ชื่อ 'logo.png')
+logo_file = st.file_uploader("Upload Evalia Logo (PNG)", type=["png"])
+if logo_file:
+    st.image(logo_file, width=200)
+
 # หัวข้อและคำอธิบาย
-st.markdown('<div class="stHeader"><h1>Evalia : Evalute + AI Applicant Analyzer with Extended Rule-Based Keywords</h1></div>', unsafe_allow_html=True)
+st.markdown('<div class="stHeader"><h1>Evalia : AI-Powered Applicant Analyzer</h1></div>', unsafe_allow_html=True)
 st.divider()
 
 # การเลือกวิธีการนำเข้าข้อมูล
@@ -161,7 +171,7 @@ if df is not None:
         )), axis=1
     )
 
-    # Summary (อยู่ด้านบน)
+    # Summary
     st.subheader("Summary")
     st.write("### Number of Applicants by Position")
     position_counts = df['ตำแหน่งงานที่ท่านสนใจ'].value_counts().reset_index()
@@ -211,23 +221,33 @@ if df is not None:
     st.subheader("Analyzed Applicants")
     for idx, row in filtered_df.iterrows():
         experience = row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', 'N/A')
+        name = f"{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}"
+        position = row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')
+        date = "20 July, 2025"  # สามารถปรับได้
+        time = "10:00 AM"       # สามารถปรับได้
+        meeting_link = "https://teams.microsoft.com/l/meeting/new"  # สามารถปรับได้
+        your_name = "HR Team"   # สามารถปรับได้
+
+        # ข้อความสำหรับ Outlook
+        mailto_link = f"mailto:?subject=Interview%20Invitation%20-%20B+%20Hospital&body=Dear%20{name},%0D%0AThank%20you%20for%20applying%20for%20the%20{position}%20at%20B%2B%20Hospital.%20We%20have%20reviewed%20your%20application%20and%20would%20like%20to%20invite%20you%20for%20an%20interview.%0D%0ADate/Time:%20{date}%20—%20{time}%0D%0ALocation/Platform:%20Microsoft%20Teams%20({meeting_link})%0D%0AInterviewer:%20HR%20Manager%0D%0APlease%20kindly%20confirm%20your%20attendance%20by%20replying%20to%20this%20email.%0D%0AIf%20you%20have%20any%20questions%20or%20need%20to%20reschedule,%20feel%20free%20to%20contact%20us%20at%2002-XXXXXXX.%0D%0AWe%20look%20forward%20to%20speaking%20with%20you%20soon.%0D%0ABest%20regards,%0D%0A{your_name}%0D%0AHR%20Department,%20B%2B%20Hospital%0D%0A%0D%0A---%0D%0Aเรียน%20{name},%0D%0Aขอบคุณที่สมัครงานในตำแหน่ง%20{position}%20กับทาง%20B%2B%20Hospital%0D%0Aทางเราได้รับใบสมัครของคุณเรียบร้อยแล้ว%20และขอเรียนเชิญเข้าร่วมสัมภาษณ์งาน%0D%0Aวัน/เวลา:%20{date}%20—%20{time}%0D%0Aสถานที่/ช่องทาง:%20Microsoft%20Teams%20({meeting_link})%0D%0Aผู้สัมภาษณ์:%20ผู้จัดการฝ่ายทรัพยากรบุคคล%0D%0Aกรุณายืนยันการเข้าร่วมสัมภาษณ์โดยการตอบกลับอีเมลนี้%0D%0Aหากมีข้อสงสัยหรือต้องการเปลี่ยนแปลงกำหนดการ%20กรุณาติดต่อ%2002-XXXXXXX%0D%0Aหวังว่าจะได้พบและพูดคุยกับคุณเร็วๆ%20นี้%0D%0Aขอแสดงความนับถือ%0D%0A{your_name}%0D%0Aฝ่ายทรัพยากรบุคคล%20B%2B%20Hospital"
+
         st.markdown(f"""
             <div class="card">
-                <h4>{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}</h4>
+                <h4>{name}</h4>
                 <ul>
                     <li><b>BMI:</b> {row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</li>
-                    <li><b>Info Level:</b> {row['Info Level']} — {row['Info Reason']}</li>
-                    <li><b>Experience Level:</b> {row['Exp Level']} — {row['Exp Reason']}</li>
-                    <li><b>Position:</b> {row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')}</li>
+                    <li><b>Info Level:</b> <span class="{row['Info Level'].lower()}">{row['Info Level']}</span> — {row['Info Reason']}</li>
+                    <li><b>Experience Level:</b> <span class="{row['Exp Level'].lower()}">{row['Exp Level']}</span> — {row['Exp Reason']}</li>
+                    <li><b>Position:</b> {position}</li>
                     <li><b>Department:</b> {row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</li>
                     <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
                     <li><b>Experience Details:</b> {experience}</li>
                 </ul>
-                <a href="mailto:?subject=Interview%20Invitation%20-%20BDMS&body=Dear%20{row.get('ชื่อ (Name)', 'Unknown')}%20{row.get('ชื่อสกุล (Surname)', '')},%0D%0AThank%20you%20for%20applying%20for%20the%20{row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')}%20position%20at%20BDMS.%20We%20have%20received%20your%20application%20and%20would%20like%20to%20invite%20you%20for%20an%20interview.%0D%0ADate/Time:%2020%20July%202025,%2010:00%20AM%0D%0ALocation/Platform:%20Microsoft%20Teams%0D%0AInterviewer:%20HR%20Manager%0D%0APlease%20confirm%20your%20attendance%20by%20replying%20to%20this%20email.%20For%20any%20questions%20or%20schedule%20changes,%20contact%20123-456-7890.%0D%0AThanks%20and%20looking%20forward%20to%20meeting%20you!%0D%0ABest%20regards" target="_blank">
+                <a href="{mailto_link}" target="_blank">
                     <button>Send Interview Invite</button>
                 </a>
-                <a href="https://teams.microsoft.com/l/meeting/new" target="_blank">
-                    <button style='background:#FFFFFF; color:#000000; margin-left:10px;'>Schedule Interview</button>
+                <a href="{meeting_link}" target="_blank">
+                    <button style='background:#C0C0C0; color:#1E3A8A; margin-left:10px;'>Schedule Interview</button>
                 </a>
             </div>
         """, unsafe_allow_html=True)
