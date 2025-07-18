@@ -11,288 +11,111 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# สไตล์ CSS ธีม Sci-Fi Cyberpunk
+# สไตล์ CSS ธีมพื้นหลังดำ ใช้ฟอนต์ "Fira Code" สีอ่านง่ายบนพื้นหลังดำ
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
-    
-    /* Animated background */
-    @keyframes matrix {
-        0% { transform: translateY(-100vh); }
-        100% { transform: translateY(100vh); }
-    }
-    
-    @keyframes glow {
-        0%, 100% { text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff; }
-        50% { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff; }
-    }
-    
-    @keyframes pulse {
-        0%, 100% { box-shadow: 0 0 5px #00ffff; }
-        50% { box-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff; }
-    }
-    
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
     .stApp {
-        background: linear-gradient(135deg, #0a0a0a 0%, #1a0033 50%, #000000 100%);
-        background-attachment: fixed;
-        color: #00ffff;
-        font-family: 'Rajdhani', sans-serif;
-        position: relative;
-        overflow-x: hidden;
+        background-color: #000000;
+        color: #d1d5db;
+        font-family: 'Fira Code', monospace;
     }
-    
-    .stApp::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: 
-            radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 40% 80%, rgba(0, 255, 0, 0.1) 0%, transparent 50%);
-        z-index: -1;
-        animation: pulse 4s ease-in-out infinite;
-    }
-    
     .stHeader {
-        background: linear-gradient(45deg, #001122, #003366);
-        padding: 15px;
-        border: 2px solid #00ffff;
-        border-radius: 15px;
+        background-color: #1a202c;
+        padding: 10px;
+        border-radius: 10px;
         text-align: center;
-        box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-        animation: glow 2s ease-in-out infinite alternate;
     }
-    
     .stButton>button {
-        border-radius: 15px;
+        border-radius: 10px;
         transition: all 0.3s ease;
-        border: 2px solid transparent;
-        font-family: 'Orbitron', monospace;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
     }
-    
     .send-outlook {
-        background: linear-gradient(45deg, #0066cc, #0099ff);
+        background-color: #1e40af;
         color: #ffffff;
-        border: 2px solid #00ffff;
-        padding: 10px 20px;
-        box-shadow: 0 0 15px rgba(0, 153, 255, 0.5);
+        border: 1px solid #1e40af;
+        padding: 8px 16px;
     }
-    
     .send-outlook:hover {
-        background: linear-gradient(45deg, #0099ff, #00ccff);
+        background-color: #1e3a8a;
         color: #ffffff;
         transform: scale(1.05);
-        box-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
-        border-color: #ffffff;
     }
-    
     .schedule-teams {
-        background: linear-gradient(45deg, #6600cc, #9900ff);
+        background-color: #6b21a8;
         color: #ffffff;
-        border: 2px solid #ff00ff;
-        padding: 10px 20px;
+        border: 1px solid #6b21a8;
+        padding: 8px 16px;
         margin-left: 10px;
-        box-shadow: 0 0 15px rgba(153, 0, 255, 0.5);
     }
-    
     .schedule-teams:hover {
-        background: linear-gradient(45deg, #9900ff, #cc00ff);
+        background-color: #5b1a99;
         color: #ffffff;
         transform: scale(1.05);
-        box-shadow: 0 0 25px rgba(255, 0, 255, 0.8);
-        border-color: #ffffff;
     }
-    
     .card {
-        background: linear-gradient(135deg, rgba(0, 30, 60, 0.8), rgba(0, 15, 30, 0.9));
-        padding: 20px;
-        border-radius: 15px;
-        margin-bottom: 20px;
-        border: 1px solid #00ffff;
-        box-shadow: 
-            0 4px 15px rgba(0, 255, 255, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
+        background: #2d3748;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
-    
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 
-            0 8px 25px rgba(0, 255, 255, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        border-color: #ffffff;
-    }
-    
     h1, h2, h3, h4 {
-        color: #00ffff;
-        font-family: 'Orbitron', monospace;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
-        animation: glow 3s ease-in-out infinite alternate;
+        color: #e2e8f0;
+        font-weight: 600;
     }
-    
     ul {
         list-style-type: none;
         padding-left: 0;
     }
-    
     ul li {
-        margin: 8px 0;
-        padding: 5px 0;
-        border-bottom: 1px solid rgba(0, 255, 255, 0.2);
-        font-weight: 400;
+        margin: 5px 0;
     }
-    
-    ul li:before {
-        content: "▶ ";
-        color: #00ffff;
-        font-weight: bold;
-        margin-right: 8px;
-    }
-    
     a {
         text-decoration: none;
     }
-    
-    .high { 
-        color: #00ff00; 
-        text-shadow: 0 0 5px #00ff00;
-        font-weight: 600;
-    }
-    
-    .low { 
-        color: #ff0040; 
-        text-shadow: 0 0 5px #ff0040;
-        font-weight: 600;
-    }
-    
-    .mid { 
-        color: #ffff00; 
-        text-shadow: 0 0 5px #ffff00;
-        font-weight: 600;
-    }
-    
+    .high { color: #00FF00; }
+    .low { color: #FF0000; }
+    .mid { color: #FFFF00; }
     .summary-total {
-        font-size: 36px;
-        font-weight: 900;
-        font-family: 'Orbitron', monospace;
-        color: #00ffff;
-        margin-bottom: 15px;
-        text-align: center;
-        text-shadow: 0 0 20px rgba(0, 255, 255, 1);
-        animation: glow 2s ease-in-out infinite alternate;
+        font-size: 32px;
+        font-weight: bold;
+        color: #e2e8f0;
+        margin-bottom: 10px;
     }
-    
     .analyzed-total {
-        font-size: 24px;
-        font-weight: 700;
-        font-family: 'Orbitron', monospace;
-        color: #00ffff;
-        margin-top: 15px;
-        text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        font-size: 20px;
+        font-weight: bold;
+        color: #e2e8f0;
+        margin-top: 10px;
     }
-    
     .logo-container {
         width: 100%;
         text-align: center;
-        margin-bottom: 20px;
-        position: relative;
+        margin-bottom: 10px;
     }
-    
     .logo-container img {
         width: 100%;
         max-height: 600px;
         object-fit: contain;
-        filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.6));
-        animation: pulse 3s ease-in-out infinite;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
     }
-    
     .description {
-        color: #00ffff;
-        padding: 25px;
-        background: linear-gradient(135deg, rgba(0, 30, 60, 0.7), rgba(0, 15, 30, 0.8));
-        border: 2px solid #00ffff;
-        border-radius: 15px;
-        margin-bottom: 25px;
-        backdrop-filter: blur(15px);
-        box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        color: #e2e8f0;
+        padding: 20px;
+        background-color: #1a202c;
+        border-radius: 10px;
+        margin-bottom: 20px;
     }
-    
     .description a {
-        color: #ff00ff;
-        text-decoration: none;
-        text-shadow: 0 0 5px #ff00ff;
-        font-weight: 600;
+        color: #93c5fd;
+        text-decoration: underline;
     }
-    
-    .description a:hover {
-        color: #ffffff;
-        text-shadow: 0 0 10px #ffffff;
-    }
-    
     .description ul {
-        list-style-type: none;
+        list-style-type: "✅ ";
         padding-left: 20px;
-    }
-    
-    .description ul li:before {
-        content: "⚡ ";
-        color: #00ff00;
-        font-weight: bold;
-        margin-right: 8px;
-        text-shadow: 0 0 5px #00ff00;
-    }
-    
-    /* Streamlit specific overrides */
-    .stSelectbox > div > div {
-        background-color: rgba(0, 30, 60, 0.8);
-        border: 1px solid #00ffff;
-        border-radius: 10px;
-        color: #00ffff;
-    }
-    
-    .stNumberInput > div > div > input {
-        background-color: rgba(0, 30, 60, 0.8);
-        border: 1px solid #00ffff;
-        color: #00ffff;
-        border-radius: 10px;
-    }
-    
-    .stDateInput > div > div > input {
-        background-color: rgba(0, 30, 60, 0.8);
-        border: 1px solid #00ffff;
-        color: #00ffff;
-        border-radius: 10px;
-    }
-    
-    .stRadio > div {
-        background-color: rgba(0, 30, 60, 0.3);
-        padding: 10px;
-        border-radius: 10px;
-        border: 1px solid rgba(0, 255, 255, 0.3);
-    }
-    
-    .stDataFrame {
-        background-color: rgba(0, 30, 60, 0.6);
-        border: 1px solid #00ffff;
-        border-radius: 10px;
-    }
-    
-    /* Custom sci-fi elements */
-    .sci-fi-border {
-        border: 2px solid;
-        border-image: linear-gradient(45deg, #00ffff, #ff00ff, #00ff00, #ffff00) 1;
-        animation: glow 2s ease-in-out infinite alternate;
     }
     </style>
     """,
