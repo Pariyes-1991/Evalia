@@ -95,6 +95,9 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# แสดงโลโก้จาก root
+st.image("Evalia_logo.png", width=200)
+
 # หัวข้อและคำอธิบาย
 st.markdown('<div class="stHeader"><h1>Project Evalia</h1><h3>Evalute + AI Applicant Analyzer with Extended Rule-Based Keywords</h3></div>', unsafe_allow_html=True)
 st.divider()
