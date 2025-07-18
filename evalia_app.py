@@ -213,6 +213,16 @@ if df is not None:
     st.subheader("Analyzed Applicants")
     for idx, row in filtered_df.iterrows():
         experience = row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', 'N/A')
+        name = f"{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}"
+        position = row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')
+        date = "20 July"  # สามารถปรับได้
+        time = "10:00 AM"  # สามารถปรับได้
+        meeting_link = "https://teams.microsoft.com/l/meeting/new"  # สามารถปรับได้
+        your_name = "HR Team"  # สามารถปรับได้
+
+        # ข้อความสำหรับ Outlook
+        mailto_link = f"mailto:?subject=Interview%20Invitation%20-%20B%2B%20Hospital&body=Dear%20{name},%0D%0AThank%20you%20for%20applying%20for%20the%20{position}%20at%20B%2B%20Hospital.%20We%20have%20reviewed%20your%20application%20and%20would%20like%20to%20invite%20you%20for%20an%20interview.%0D%0ADate/Time:%20{date},%202025%20—%20{time}%0D%0ALocation/Platform:%20Microsoft%20Teams%20({meeting_link})%0D%0AInterviewer:%20HR%20Manager%0D%0APlease%20kindly%20confirm%20your%20attendance%20by%20replying%20to%20this%20email.%0D%0AIf%20you%20have%20any%20questions%20or%20need%20to%20reschedule,%20feel%20free%20to%20contact%20us%20at%2002-XXXXXXX.%0D%0AWe%20look%20forward%20to%20speaking%20with%20you%20soon.%0D%0ABest%20regards,%0D%0A{your_name}%0D%0AHR%20Department,%20B%2B%20Hospital%0D%0A%0D%0A---%0D%0Aเรียน%20{name},%0D%0Aขอบคุณที่สมัครงานในตำแหน่ง%20{position}%20กับทาง%20B%2B%20Hospital%0D%0Aทางเราได้รับใบสมัครของคุณเรียบร้อยแล้ว%20และขอเรียนเชิญเข้าร่วมสัมภาษณ์งาน%0D%0Aวัน/เวลา:%20{date}%20—%20{time}%0D%0Aสถานที่/ช่องทาง:%20Microsoft%20Teams%20({meeting_link})%0D%0Aผู้สัมภาษณ์:%20ผู้จัดการฝ่ายทรัพยากรบุคคล%0D%0Aกรุณายืนยันการเข้าร่วมสัมภาษณ์โดยการตอบกลับอีเมลนี้%0D%0Aหากมีข้อสงสัยหรือต้องการเปลี่ยนแปลงกำหนดการ%20กรุณาติดต่อ%2002-XXXXXXX%0D%0Aหวังว่าจะได้พบและพูดคุยกับคุณเร็วๆ%20นี้%0D%0Aขอแสดงความนับถือ%0D%0A{your_name}%0D%0Aฝ่ายทรัพยากรบุคคล%20B%2B%20Hospital"
+
         st.markdown(f"""
             <div class="card">
                 <h4>{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}</h4>
@@ -225,7 +235,7 @@ if df is not None:
                     <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
                     <li><b>Experience Details:</b> {experience}</li>
                 </ul>
-                <a href="mailto:?subject=Interview%20Invitation%20-%20BDMS&body=Dear%20{row.get('ชื่อ (Name)', 'Unknown')}%20{row.get('ชื่อสกุล (Surname)', '')},%0D%0AThank%20you%20for%20applying%20for%20the%20{row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')}%20position%20at%20BDMS.%20We%20have%20received%20your%20application%20and%20would%20like%20to%20invite%20you%20for%20an%20interview.%0D%0ADate/Time:%2020%20July%202025,%2010:00%20AM%0D%0ALocation/Platform:%20Microsoft%20Teams%0D%0AInterviewer:%20HR%20Manager%0D%0APlease%20confirm%20your%20attendance%20by%20replying%20to%20this%20email.%20For%20any%20questions%20or%20schedule%20changes,%20contact%20123-456-7890.%0D%0AThanks%20and%20looking%20forward%20to%20meeting%20you!%0D%0ABest%20regards" target="_blank">
+                <a href="{mailto_link}" target="_blank">
                     <button>Send Interview Invite</button>
                 </a>
                 <a href="https://teams.microsoft.com/l/meeting/new" target="_blank">
