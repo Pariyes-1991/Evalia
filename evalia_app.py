@@ -10,16 +10,15 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# CSS Sci-fi Theme
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-
 .stApp {
     background: radial-gradient(circle at top left, #0f172a, #000000);
     color: #e0f2fe;
     font-family: 'Orbitron', sans-serif;
 }
-
 .stHeader {
     background: linear-gradient(90deg, #06b6d4, #3b82f6, #9333ea);
     color: #ffffff;
@@ -28,7 +27,6 @@ st.markdown("""
     text-align: center;
     box-shadow: 0 0 20px #06b6d4;
 }
-
 .stButton>button {
     border-radius: 12px;
     padding: 10px 20px;
@@ -38,13 +36,11 @@ st.markdown("""
     color: white;
     border: none;
 }
-
 .stButton>button:hover {
     transform: scale(1.05);
     background: #0ea5e9;
     box-shadow: 0 0 10px #06b6d4;
 }
-
 .send-outlook {
     background: #3b82f6;
     color: #ffffff;
@@ -54,12 +50,10 @@ st.markdown("""
     border-radius: 12px;
     box-shadow: 0 0 10px #3b82f6;
 }
-
 .send-outlook:hover {
     background: #2563eb;
     transform: scale(1.05);
 }
-
 .schedule-teams {
     background: #9333ea;
     color: #ffffff;
@@ -70,12 +64,10 @@ st.markdown("""
     margin-left: 10px;
     box-shadow: 0 0 10px #9333ea;
 }
-
 .schedule-teams:hover {
     background: #7e22ce;
     transform: scale(1.05);
 }
-
 .card {
     background: rgba(30, 41, 59, 0.85);
     padding: 20px;
@@ -84,17 +76,14 @@ st.markdown("""
     box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
     transition: all 0.3s ease;
 }
-
 .card:hover {
     transform: translateY(-3px);
     box-shadow: 0 0 25px rgba(6, 182, 212, 0.8);
 }
-
 h1, h2, h3, h4 {
     color: #e0f2fe;
     font-weight: 700;
 }
-
 .summary-total {
     font-size: 36px;
     font-weight: 700;
@@ -102,7 +91,6 @@ h1, h2, h3, h4 {
     text-shadow: 0 0 10px #facc15;
     margin-bottom: 15px;
 }
-
 .analyzed-total {
     font-size: 24px;
     font-weight: 700;
@@ -110,11 +98,9 @@ h1, h2, h3, h4 {
     text-shadow: 0 0 8px #67e8f9;
     margin-top: 15px;
 }
-
 .high { color: #22c55e; font-weight: 700; text-shadow: 0 0 5px #22c55e; }
 .mid { color: #facc15; font-weight: 700; text-shadow: 0 0 5px #facc15; }
 .low { color: #ef4444; font-weight: 700; text-shadow: 0 0 5px #ef4444; }
-
 .logo-container img {
     width: 100%;
     max-height: 500px;
@@ -171,10 +157,22 @@ if df is not None:
 
     def assign_exp_level(exp_years, description):
         try:
-            years = 0 if pd.isna(exp_years) else int(exp_years)
+            exp_str = str(exp_years).strip()
+            if exp_str == "มากกว่า 10ปี":
+                years = 10
+            elif exp_str == "7-10 ปี":
+                years = 7
+            elif exp_str == "4-6 ปี":
+                years = 4
+            elif exp_str == "1-3 ปี":
+                years = 1
+            else:
+                years = 0
+
+            desc_lower = str(description).lower()
             keywords_high = ["lead", "manager", "senior", "expert", "specialist", "consultant", "director", "chief", "head", "principal"]
             keywords_mid = ["assist", "support", "junior", "operator", "staff", "clerk", "coordinator", "trainee"]
-            desc_lower = str(description).lower()
+
             if years >= 5:
                 return "High", "Over 5 years experience"
             elif years >= 2:
@@ -192,7 +190,11 @@ if df is not None:
 
     df['BMI'] = df.apply(calculate_bmi, axis=1)
     df[['Info Level', 'Info Reason']] = df['BMI'].apply(lambda x: pd.Series(assign_info_level(x)))
-    df[['Exp Level', 'Exp Reason']] = df.apply(lambda row: pd.Series(assign_exp_level(row.get('Experience_Years', 0), row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', ''))), axis=1)
+    df[['Exp Level', 'Exp Reason']] = df.apply(
+        lambda row: pd.Series(assign_exp_level(
+            row.get('Experience_Years', 0),
+            row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', '')
+        )), axis=1)
 
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Applicants", len(df))
@@ -203,36 +205,13 @@ if df is not None:
     st.dataframe(df, use_container_width=True)
 
     st.subheader("Filters")
-    filter_col1, filter_col2 = st.columns(2)
-    with filter_col1:
+    fcol1, fcol2 = st.columns(2)
+    with fcol1:
         position_filter = st.selectbox("Filter by Position", ['All'] + df['ตำแหน่งงานที่ท่านสนใจ'].dropna().unique().tolist())
-    with filter_col2:
+    with fcol2:
         bmi_filter = st.slider("Max BMI", min_value=0.0, max_value=40.0, value=25.0)
 
     filtered_df = df.copy()
     if position_filter != 'All':
         filtered_df = filtered_df[filtered_df['ตำแหน่งงานที่ท่านสนใจ'] == position_filter]
-    filtered_df = filtered_df[filtered_df['BMI'].fillna(100) <= bmi_filter]
-
-    st.success(f"{len(filtered_df)} records after filtering")
-
-    for _, row in filtered_df.iterrows():
-        st.markdown(f"""
-        <div class="card">
-            <h4>{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}</h4>
-            <ul>
-                <li><b>BMI:</b> {row['BMI']} — <span class="{row['Info Level'].lower()}">{row['Info Level']}</span></li>
-                <li><b>Experience Level:</b> <span class="{row['Exp Level'].lower()}">{row['Exp Level']}</span> — {row['Exp Reason']}</li>
-                <li><b>Position:</b> {row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')}</li>
-                <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
-            </ul>
-            <a href="mailto:?subject=Interview Invitation">
-                <button class="send-outlook">Send Outlook Invite</button>
-            </a>
-            <a href="https://teams.microsoft.com/l/meeting/new" target="_blank">
-                <button class="schedule-teams">Schedule on Teams</button>
-            </a>
-        </div>
-        """, unsafe_allow_html=True)
-else:
-    st.info("Please upload or provide a valid Excel link to start.")
+    filtered_df = filtered_df[fi]()
