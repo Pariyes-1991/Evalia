@@ -79,9 +79,16 @@ st.markdown(
     .low { color: #FF0000; }
     .mid { color: #FFFF00; }
     .summary-total {
-        font-size: 24px;
+        font-size: 32px;
         font-weight: bold;
         color: #e2e8f0;
+        margin-bottom: 10px;
+    }
+    .analyzed-total {
+        font-size: 20px;
+        font-weight: bold;
+        color: #e2e8f0;
+        margin-top: 10px;
     }
     </style>
     """,
@@ -186,12 +193,12 @@ if df is not None:
 
     # Summary (อยู่ด้านบน)
     st.subheader("Summary")
+    total_applicants = len(df)
+    st.markdown(f'<div class="summary-total">Total Applicants: {total_applicants}</div>', unsafe_allow_html=True)
     st.write("### Number of Applicants by Position")
     position_counts = df['ตำแหน่งงานที่ท่านสนใจ'].value_counts().reset_index()
     position_counts.columns = ['Position', 'Count']
     st.write(position_counts)
-    total_applicants = len(df)
-    st.markdown(f'<div class="summary-total">Total Applicants: {total_applicants}</div>', unsafe_allow_html=True)
 
     st.write("### Experience Distribution")
     exp_counts = df['Experience_Years'].value_counts().reset_index()
@@ -240,6 +247,8 @@ if df is not None:
 
     # แสดงผลผู้สมัครที่กรองแล้ว
     st.subheader("Analyzed Applicants")
+    total_analyzed = len(filtered_df)
+    st.markdown(f'<div class="analyzed-total">Total Analyzed: {total_analyzed}</div>', unsafe_allow_html=True)
     for idx, row in filtered_df.iterrows():
         experience = row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', 'N/A')
         name = f"{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}"
