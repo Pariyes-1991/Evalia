@@ -97,8 +97,9 @@ st.markdown(
     }
     .logo-container img {
         width: 100%;
-        max-height: 200px;
-        object-fit: contain;
+        max-height: 250px; /* เพิ่มความสูงสูงสุด */
+        object-fit: contain; /* รักษาสัดส่วนและความชัด */
+        image-rendering: -webkit-optimize-contrast; /* ปรับปรุงความชัดสำหรับบางเบราว์เซอร์ */
     }
     </style>
     """,
@@ -107,7 +108,7 @@ st.markdown(
 
 # แสดงโลโก้ให้คลอบคลุมด้านบน
 st.markdown('<div class="logo-container">', unsafe_allow_html=True)
-st.image("Evalia_logo.png", width=1500)  # เพิ่มขนาดให้ใหญ่ขึ้น
+st.image("Evalia_logo.png", width=2000)  # เพิ่มขนาดให้ใหญ่ขึ้นเพื่อครอบคลุม
 st.markdown('</div>', unsafe_allow_html=True)
 
 # หัวข้อและคำอธิบาย
