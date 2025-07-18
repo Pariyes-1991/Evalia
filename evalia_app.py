@@ -97,10 +97,10 @@ st.markdown(
     }
     .logo-container img {
         width: 100%;
-        max-height: 600px; /* ปรับตามสัดส่วน 16:9 จาก 1920x1080 */
-        object-fit: contain; /* รักษาสัดส่วน */
-        image-rendering: -webkit-optimize-contrast; /* ปรับปรุงความชัด */
-        image-rendering: crisp-edges; /* ป้องกันเบลอ */
+        max-height: 600px;
+        object-fit: contain;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
     }
     </style>
     """,
@@ -109,7 +109,7 @@ st.markdown(
 
 # แสดงโลโก้ให้คลอบคลุมด้านบน
 st.markdown('<div class="logo-container">', unsafe_allow_html=True)
-st.image("Evalia_logo.png", width=1920)  # ใช้ความกว้างเท่าความละเอียดเดิม
+st.image("Evalia_logo.png", width=1920)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # หัวข้อและคำอธิบาย
@@ -208,6 +208,24 @@ if df is not None:
         )), axis=1
     )
 
+    # ฟังก์ชันกำหนด Rank
+    def assign_rank(row):
+        info_level = row['Info Level']
+        exp_level = row['Exp Level']
+        high_count = sum(1 for level in [info_level, exp_level] if level == "High")
+        mid_count = sum(1 for level in [info_level, exp_level] if level in ["High", "Mid"])
+        low_count = sum(1 for level in [info_level, exp_level] if level == "Low")
+
+        if high_count >= 2:
+            return "High Rank"
+        elif mid_count >= 2:
+            return "Mid Rank"
+        elif low_count >= 2:
+            return "Low Rank"
+        return "Unranked"
+
+    df['Rank'] = df.apply(assign_rank, axis=1)
+
     # Summary (อยู่ด้านบน)
     st.subheader("Summary")
     total_applicants = len(df)
@@ -229,7 +247,7 @@ if df is not None:
 
     # ส่วนการกรองข้อมูล
     st.subheader("Filter Applicants")
-    col1, col2, col3, col4, col5 = st.columns(5)
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
 
     with col1:
         position_options = ['All'] + list(df['ตำแหน่งงานที่ท่านสนใจ'].dropna().unique())
@@ -243,6 +261,9 @@ if df is not None:
         bmi_max = st.number_input("Maximum BMI", min_value=0.0, value=25.0)
     with col5:
         selected_date = st.date_input("Select Date", value=None)
+    with col6:
+        rank_options = ['All', 'High Rank', 'Mid Rank', 'Low Rank']
+        selected_rank = st.selectbox("Rank", rank_options)
 
     # กรองข้อมูล
     filtered_df = df.copy()
@@ -255,9 +276,10 @@ if df is not None:
     if bmi_max > 0:
         filtered_df = filtered_df[filtered_df['BMI'].fillna(100) <= bmi_max]
     if selected_date:
-        # ตัวอย่างการกรองตามวันที่ (สมมติมีคอลัมน์ 'Application Date')
         if 'Application Date' in df.columns:
             filtered_df = filtered_df[filtered_df['Application Date'] == pd.Timestamp(selected_date)]
+    if selected_rank != 'All':
+        filtered_df = filtered_df[filtered_df['Rank'] == selected_rank]
 
     st.write(f"Found {len(filtered_df)} applicants after filtering")
     st.dataframe(filtered_df)
@@ -270,12 +292,11 @@ if df is not None:
         experience = row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', 'N/A')
         name = f"{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}"
         position = row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')
-        date = "20 July"  # สามารถปรับได้
-        time = "10:00 AM"  # สามารถปรับได้
-        meeting_link = "https://teams.microsoft.com/l/meeting/new"  # สามารถปรับได้
-        your_name = "HR Team"  # สามารถปรับได้
+        date = "20 July"
+        time = "10:00 AM"
+        meeting_link = "https://teams.microsoft.com/l/meeting/new"
+        your_name = "HR Team"
 
-        # ข้อความสำหรับ Outlook (ไม่มีข้อความใน body)
         mailto_link = f"mailto:?subject=Interview%20-%20US"
 
         st.markdown(f"""
