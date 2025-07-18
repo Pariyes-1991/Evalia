@@ -323,7 +323,7 @@ if df is not None:
         experience = row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', 'N/A')
         name = f"{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}"
         position = row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')
-        salary = row.get('Salary', 'N/A')  # สมมติมีคอลัมน์ 'Salary'
+        expected_salary = row.get('เงินเดือนที่คาดหวัง', 'N/A')  # เปลี่ยนเป็น 'เงินเดือนที่คาดหวัง'
         date = "20 July"
         time = "10:00 AM"
         meeting_link = "https://teams.microsoft.com/l/meeting/new"
@@ -341,7 +341,7 @@ if df is not None:
                     <li><b>Position:</b> {position}</li>
                     <li><b>Department:</b> {row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</li>
                     <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
-                    <li><b>Salary:</b> {salary}</li>  <!-- เพิ่มการแสดงผลเงินเดือน -->
+                    <li><b>Expected Salary:</b> {expected_salary}</li>  <!-- เปลี่ยนชื่อเป็น Expected Salary -->
                     <li><b>Experience Details:</b> {experience}</li>
                 </ul>
                 <a href="{mailto_link}" target="_blank" onClick="if(!window.location.href.includes('mailto')) alert('Failed to open Outlook. Please ensure Outlook is set as your default email client.');">
