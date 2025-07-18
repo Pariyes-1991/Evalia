@@ -220,25 +220,25 @@ if df is not None:
         meeting_link = "https://teams.microsoft.com/l/meeting/new"  # สามารถปรับได้
         your_name = "HR Team"  # สามารถปรับได้
 
-        # ข้อความสำหรับ Outlook
-        mailto_link = f"mailto:?subject=Interview%20Invitation%20-%20B%2B%20Hospital&body=Dear%20{name},%0D%0AThank%20you%20for%20applying%20for%20the%20{position}%20at%20B%2B%20Hospital.%20We%20have%20reviewed%20your%20application%20and%20would%20like%20to%20invite%20you%20for%20an%20interview.%0D%0ADate/Time:%20{date},%202025%20—%20{time}%0D%0ALocation/Platform:%20Microsoft%20Teams%20({meeting_link})%0D%0AInterviewer:%20HR%20Manager%0D%0APlease%20kindly%20confirm%20your%20attendance%20by%20replying%20to%20this%20email.%0D%0AIf%20you%20have%20any%20questions%20or%20need%20to%20reschedule,%20feel%20free%20to%20contact%20us%20at%2002-XXXXXXX.%0D%0AWe%20look%20forward%20to%20speaking%20with%20you%20soon.%0D%0ABest%20regards,%0D%0A{your_name}%0D%0AHR%20Department,%20B%2B%20Hospital%0D%0A%0D%0A---%0D%0Aเรียน%20{name},%0D%0Aขอบคุณที่สมัครงานในตำแหน่ง%20{position}%20กับทาง%20B%2B%20Hospital%0D%0Aทางเราได้รับใบสมัครของคุณเรียบร้อยแล้ว%20และขอเรียนเชิญเข้าร่วมสัมภาษณ์งาน%0D%0Aวัน/เวลา:%20{date}%20—%20{time}%0D%0Aสถานที่/ช่องทาง:%20Microsoft%20Teams%20({meeting_link})%0D%0Aผู้สัมภาษณ์:%20ผู้จัดการฝ่ายทรัพยากรบุคคล%0D%0Aกรุณายืนยันการเข้าร่วมสัมภาษณ์โดยการตอบกลับอีเมลนี้%0D%0Aหากมีข้อสงสัยหรือต้องการเปลี่ยนแปลงกำหนดการ%20กรุณาติดต่อ%2002-XXXXXXX%0D%0Aหวังว่าจะได้พบและพูดคุยกับคุณเร็วๆ%20นี้%0D%0Aขอแสดงความนับถือ%0D%0A{your_name}%0D%0Aฝ่ายทรัพยากรบุคคล%20B%2B%20Hospital"
+        # ข้อความสำหรับ Outlook (ย่อและตรวจสอบ)
+        mailto_link = f"mailto:?subject=Interview%20Invite%20-%20B%2B%20Hospital&body=Dear%20{name},%0D%0AThank%20you%20for%20applying%20for%20{position}%20at%20B%2B%20Hospital.%20We%20invite%20you%20for%20an%20interview.%0D%0ADate/Time:%20{date},%202025%20-%20{time}%0D%0ALocation:%20{meeting_link}%0D%0AInterviewer:%20HR%20Manager%0D%0AConfirm%20via%20reply.%20Contact:%2002-XXXXXXX%20for%20queries.%0D%0ABest,%20{your_name}"
 
         st.markdown(f"""
             <div class="card">
-                <h4>{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}</h4>
+                <h4>{name}</h4>
                 <ul>
                     <li><b>BMI:</b> {row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</li>
                     <li><b>Info Level:</b> <span class="{row['Info Level'].lower()}">{row['Info Level']}</span> — {row['Info Reason']}</li>
                     <li><b>Experience Level:</b> <span class="{row['Exp Level'].lower()}">{row['Exp Level']}</span> — {row['Exp Reason']}</li>
-                    <li><b>Position:</b> {row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')}</li>
+                    <li><b>Position:</b> {position}</li>
                     <li><b>Department:</b> {row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</li>
                     <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
                     <li><b>Experience Details:</b> {experience}</li>
                 </ul>
-                <a href="{mailto_link}" target="_blank">
+                <a href="{mailto_link}" target="_blank" onClick="if(!window.location.href.includes('mailto')) alert('Failed to open Outlook. Please ensure Outlook is set as your default email client.');">
                     <button>Send Interview Invite</button>
                 </a>
-                <a href="https://teams.microsoft.com/l/meeting/new" target="_blank">
+                <a href="{meeting_link}" target="_blank">
                     <button style='background:#FFFFFF; color:#000000; margin-left:10px;'>Schedule Interview</button>
                 </a>
             </div>
