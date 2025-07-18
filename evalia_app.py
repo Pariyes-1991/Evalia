@@ -97,10 +97,10 @@ st.markdown(
     }
     .logo-container img {
         width: 100%;
-        max-height: 400px; /* ปรับสูงสุดให้สูงขึ้นเพื่อรองรับขนาดหน้าปก FB */
+        max-height: 600px; /* ปรับตามสัดส่วน 16:9 จาก 1920x1080 */
         object-fit: contain; /* รักษาสัดส่วน */
         image-rendering: -webkit-optimize-contrast; /* ปรับปรุงความชัด */
-        image-rendering: crisp-edges; /* ป้องกันเบลอเพิ่มเติม */
+        image-rendering: crisp-edges; /* ป้องกันเบลอ */
     }
     </style>
     """,
@@ -109,7 +109,7 @@ st.markdown(
 
 # แสดงโลโก้ให้คลอบคลุมด้านบน
 st.markdown('<div class="logo-container">', unsafe_allow_html=True)
-st.image("Evalia_logo.png", width=1000)  # ลดการยืดเกินไปเพื่อรักษาความชัด
+st.image("Evalia_logo.png", width=1920)  # ใช้ความกว้างเท่าความละเอียดเดิม
 st.markdown('</div>', unsafe_allow_html=True)
 
 # หัวข้อและคำอธิบาย
