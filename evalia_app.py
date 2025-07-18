@@ -102,6 +102,21 @@ st.markdown(
         image-rendering: -webkit-optimize-contrast;
         image-rendering: crisp-edges;
     }
+    .description {
+        color: #e2e8f0;
+        padding: 20px;
+        background-color: #1a202c;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    .description a {
+        color: #93c5fd;
+        text-decoration: underline;
+    }
+    .description ul {
+        list-style-type: "✅ ";
+        padding-left: 20px;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -111,6 +126,30 @@ st.markdown(
 st.markdown('<div class="logo-container">', unsafe_allow_html=True)
 st.image("Evalia_logo.png", width=1920)
 st.markdown('</div>', unsafe_allow_html=True)
+
+# เพิ่มคำอธิบายหน้าแรก
+st.markdown(
+    """
+    <div class="description">
+        <h2>EVALIA — AI-Powered Applicant Analyzer for BHQ HR</h2>
+        <p><a href="https://project-evalia.streamlit.app/" target="_blank">https://project-evalia.streamlit.app/</a></p>
+        <p>EVALIA (Evaluate + AI) is a free applicant analysis tool designed specifically for HR professionals at BHQ. 
+        It combines AI-powered analysis with extended rule-based filtering to help streamline the applicant review process — with no connection fees or maintenance costs.</p>
+        
+        <h3>Key Features:</h3>
+        <ul>
+            <li>BMI & Health Indicator Check — Automatically calculates BMI and classifies applicants' health status.</li>
+            <li>Experience Analyzer — Assesses candidates based on their years of experience and job descriptions using keyword detection.</li>
+            <li>Position & Skill Filter — Instantly filter applicants by position, BMI threshold, and TOEIC scores.</li>
+            <li>Ready-to-Use Interview Tools — One-click buttons to send interview invites via Outlook or schedule meetings on Microsoft Teams.</li>
+            <li>Modern and User-Friendly Dashboard — Clean, intuitive UI powered by Streamlit.</li>
+        </ul>
+        
+        <p>EVALIA is designed to enhance decision-making for BHQ HR teams by quickly summarizing key applicant insights — all in one dashboard, completely free to use without any running or maintenance fees.</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # หัวข้อและคำอธิบาย
 st.markdown('<div class="stHeader"><h1>Project Evalia</h1><h3>Evalute + AI Applicant Analyzer with Extended Rule-Based Keywords</h3></div>', unsafe_allow_html=True)
