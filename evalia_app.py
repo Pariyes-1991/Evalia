@@ -5,7 +5,7 @@ import io
 
 # กำหนดการตั้งค่าแอป
 st.set_page_config(
-    page_title="Evalia : Evalute + AI Applicant Analyzer with Extended Rule-Based Keywords",
+    page_title="Project Evalia",
     page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
@@ -68,7 +68,7 @@ st.markdown(
 )
 
 # หัวข้อและคำอธิบาย
-st.markdown('<div class="stHeader"><h1>Evalia : Evalute + AI Applicant Analyzer with Extended Rule-Based Keywords</h1></div>', unsafe_allow_html=True)
+st.markdown('<div class="stHeader"><h1>Project Evalia</h1><h3>Evalute + AI Applicant Analyzer with Extended Rule-Based Keywords</h3></div>', unsafe_allow_html=True)
 st.divider()
 
 # การเลือกวิธีการนำเข้าข้อมูล
@@ -220,8 +220,8 @@ if df is not None:
         meeting_link = "https://teams.microsoft.com/l/meeting/new"  # สามารถปรับได้
         your_name = "HR Team"  # สามารถปรับได้
 
-        # ข้อความสำหรับ Outlook (ย่อและตรวจสอบ)
-        mailto_link = f"mailto:?subject=Interview%20Invite%20-%20B%2B%20Hospital&body=Dear%20{name},%0D%0AThank%20you%20for%20applying%20for%20{position}%20at%20B%2B%20Hospital.%20We%20invite%20you%20for%20an%20interview.%0D%0ADate/Time:%20{date},%202025%20-%20{time}%0D%0ALocation:%20{meeting_link}%0D%0AInterviewer:%20HR%20Manager%0D%0AConfirm%20via%20reply.%20Contact:%2002-XXXXXXX%20for%20queries.%0D%0ABest,%20{your_name}"
+        # ข้อความสำหรับ Outlook
+        mailto_link = f"mailto:?subject=Interview%20Invite%20-%20B%2B%20Hospital&body=เรียน%20{name},%0D%0Aขอบคุณที่สมัครงานในตำแหน่ง%20{position}%20กับทาง%20B%2B%20Hospital%0D%0Aทางเราได้รับใบสมัครของคุณเรียบร้อยแล้ว%20และขอเรียนเชิญเข้าร่วมสัมภาษณ์งาน%0D%0Aวัน/เวลา:%20{date}%20—%20{time}%0D%0Aสถานที่/ช่องทาง:%20Microsoft%20Teams%20({meeting_link})%0D%0Aผู้สัมภาษณ์:%20ผู้จัดการฝ่ายทรัพยากรบุคคล%0D%0Aกรุณายืนยันการเข้าร่วมสัมภาษณ์โดยการตอบกลับอีเมลนี้%0D%0Aหากมีข้อสงสัยหรือต้องการเปลี่ยนแปลงกำหนดการ%20กรุณาติดต่อ%2002-XXXXXXX%0D%0Aหวังว่าจะได้พบและพูดคุยกับคุณเร็วๆ%20นี้%0D%0Aขอแสดงความนับถือ%0D%0A{your_name}%0D%0Aฝ่ายทรัพยากรบุคคล%20B%2B%20Hospital"
 
         st.markdown(f"""
             <div class="card">
