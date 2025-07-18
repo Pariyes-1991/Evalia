@@ -11,43 +11,44 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# สไตล์ CSS ธีมขาวดำ
+# สไตล์ CSS ธีม GitHub (ขาว-ดำ-ฟ้า) ใช้ฟอนต์ "Fira Code" ที่เข้ากัน
 st.markdown(
     """
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
     .stApp {
-        background-color: #333333;
-        color: #FFFFFF;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #ffffff;
+        color: #24292e;
+        font-family: 'Fira Code', monospace;
     }
     .stHeader {
-        background-color: #000000;
+        background-color: #24292e;
         padding: 10px;
         border-radius: 10px;
         text-align: center;
     }
     .stButton>button {
-        background-color: #FFFFFF;
-        color: #000000;
-        border: 1px solid #000000;
+        background-color: #0366d6;
+        color: #ffffff;
+        border: 1px solid #0366d6;
         padding: 8px 16px;
         border-radius: 5px;
         transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #000000;
-        color: #FFFFFF;
+        background-color: #005cc5;
+        color: #ffffff;
         transform: scale(1.05);
     }
     .card {
-        background: #444444;
+        background: #f6f8fa;
         padding: 15px;
         border-radius: 10px;
         margin-bottom: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
     h1, h2, h3, h4 {
-        color: #FFFFFF;
+        color: #24292e;
         font-weight: 600;
     }
     ul {
@@ -62,6 +63,7 @@ st.markdown(
     }
     .high { color: #00FF00; }
     .low { color: #FF0000; }
+    .mid { color: #FFFF00; }
     </style>
     """,
     unsafe_allow_html=True
@@ -220,8 +222,8 @@ if df is not None:
         meeting_link = "https://teams.microsoft.com/l/meeting/new"  # สามารถปรับได้
         your_name = "HR Team"  # สามารถปรับได้
 
-        # ข้อความสำหรับ Outlook
-        mailto_link = f"mailto:?subject=Interview%20Invite%20-%20B%2B%20Hospital&body=เรียน%20{name},%0D%0Aขอบคุณที่สมัครงานในตำแหน่ง%20{position}%20กับทาง%20B%2B%20Hospital%0D%0Aทางเราได้รับใบสมัครของคุณเรียบร้อยแล้ว%20และขอเรียนเชิญเข้าร่วมสัมภาษณ์งาน%0D%0Aวัน/เวลา:%20{date}%20—%20{time}%0D%0Aสถานที่/ช่องทาง:%20Microsoft%20Teams%20({meeting_link})%0D%0Aผู้สัมภาษณ์:%20ผู้จัดการฝ่ายทรัพยากรบุคคล%0D%0Aกรุณายืนยันการเข้าร่วมสัมภาษณ์โดยการตอบกลับอีเมลนี้%0D%0Aหากมีข้อสงสัยหรือต้องการเปลี่ยนแปลงกำหนดการ%20กรุณาติดต่อ%2002-XXXXXXX%0D%0Aหวังว่าจะได้พบและพูดคุยกับคุณเร็วๆ%20นี้%0D%0Aขอแสดงความนับถือ%0D%0A{your_name}%0D%0Aฝ่ายทรัพยากรบุคคล%20B%2B%20Hospital"
+        # ข้อความสำหรับ Outlook (สั้นลง)
+        mailto_link = f"mailto:?subject=Interview%20-%20B%2B%20Hospital&body=เรียน%20{name},%0D%0Aขอบคุณที่สมัคร%20{position}%20ที่%20B%2B%20Hospital.%20เชิญสัมภาษณ์%20{date}%20{time}%20via%20{meeting_link}.%0D%0Aยืนยันทางอีเมล.%20ติดต่อ:%2002-XXXXXXX%0D%0A{your_name}"
 
         st.markdown(f"""
             <div class="card">
@@ -239,7 +241,7 @@ if df is not None:
                     <button>Send Interview Invite</button>
                 </a>
                 <a href="{meeting_link}" target="_blank">
-                    <button style='background:#FFFFFF; color:#000000; margin-left:10px;'>Schedule Interview</button>
+                    <button style='background:#0366d6; color:#ffffff; margin-left:10px;'>Schedule Interview via Teams</button>
                 </a>
             </div>
         """, unsafe_allow_html=True)
