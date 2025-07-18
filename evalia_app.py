@@ -28,15 +28,29 @@ st.markdown(
         text-align: center;
     }
     .stButton>button {
-        background-color: #3182ce;
-        color: #ffffff;
-        border: 1px solid #3182ce;
-        padding: 8px 16px;
-        border-radius: 5px;
+        border-radius: 10px;
         transition: all 0.3s ease;
     }
-    .stButton>button:hover {
-        background-color: #2b6cb0;
+    .send-outlook {
+        background-color: #1e40af;
+        color: #ffffff;
+        border: 1px solid #1e40af;
+        padding: 8px 16px;
+    }
+    .send-outlook:hover {
+        background-color: #1e3a8a;
+        color: #ffffff;
+        transform: scale(1.05);
+    }
+    .schedule-teams {
+        background-color: #6b21a8;
+        color: #ffffff;
+        border: 1px solid #6b21a8;
+        padding: 8px 16px;
+        margin-left: 10px;
+    }
+    .schedule-teams:hover {
+        background-color: #5b1a99;
         color: #ffffff;
         transform: scale(1.05);
     }
@@ -64,6 +78,11 @@ st.markdown(
     .high { color: #00FF00; }
     .low { color: #FF0000; }
     .mid { color: #FFFF00; }
+    .summary-total {
+        font-size: 24px;
+        font-weight: bold;
+        color: #e2e8f0;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -171,6 +190,8 @@ if df is not None:
     position_counts = df['ตำแหน่งงานที่ท่านสนใจ'].value_counts().reset_index()
     position_counts.columns = ['Position', 'Count']
     st.write(position_counts)
+    total_applicants = len(df)
+    st.markdown(f'<div class="summary-total">Total Applicants: {total_applicants}</div>', unsafe_allow_html=True)
 
     st.write("### Experience Distribution")
     exp_counts = df['Experience_Years'].value_counts().reset_index()
@@ -184,7 +205,7 @@ if df is not None:
 
     # ส่วนการกรองข้อมูล
     st.subheader("Filter Applicants")
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
 
     with col1:
         position_options = ['All'] + list(df['ตำแหน่งงานที่ท่านสนใจ'].dropna().unique())
@@ -196,6 +217,8 @@ if df is not None:
         toeic_min = st.number_input("Minimum TOEIC Score", min_value=0, max_value=990, value=0)
     with col4:
         bmi_max = st.number_input("Maximum BMI", min_value=0.0, value=25.0)
+    with col5:
+        selected_date = st.date_input("Select Date", value=None)
 
     # กรองข้อมูล
     filtered_df = df.copy()
@@ -207,6 +230,10 @@ if df is not None:
         filtered_df = filtered_df[filtered_df['TOEIC Score (ถ้ามี)'].fillna(0) >= toeic_min]
     if bmi_max > 0:
         filtered_df = filtered_df[filtered_df['BMI'].fillna(100) <= bmi_max]
+    if selected_date:
+        # ตัวอย่างการกรองตามวันที่ (สมมติมีคอลัมน์ 'Application Date')
+        if 'Application Date' in df.columns:
+            filtered_df = filtered_df[filtered_df['Application Date'] == pd.Timestamp(selected_date)]
 
     st.write(f"Found {len(filtered_df)} applicants after filtering")
     st.dataframe(filtered_df)
@@ -222,8 +249,8 @@ if df is not None:
         meeting_link = "https://teams.microsoft.com/l/meeting/new"  # สามารถปรับได้
         your_name = "HR Team"  # สามารถปรับได้
 
-        # ข้อความสำหรับ Outlook
-        mailto_link = f"mailto:?subject=Interview%20-%20US&body=เรียน%20{name},%0D%0Aขอบคุณที่สมัครงานในตำแหน่ง%20{position}%20กับทาง%20US%0D%0Aทางเราได้รับใบสมัครของคุณเรียบร้อยแล้ว%20และขอเรียนเชิญเข้าร่วมสัมภาษณ์งาน%0D%0Aวัน/เวลา:%20{date}%20—%20{time}%0D%0Aสถานที่/ช่องทาง:%20Microsoft%20Teams%20({meeting_link})%0D%0Aผู้สัมภาษณ์:%20ผู้จัดการฝ่ายทรัพยากรบุคคล%0D%0Aกรุณายืนยันการเข้าร่วมสัมภาษณ์โดยการตอบกลับอีเมลนี้%0D%0Aหากมีข้อสงสัยหรือต้องการเปลี่ยนแปลงกำหนดการ%20กรุณาติดต่อ%2002-XXXXXXX%0D%0Aหวังว่าจะได้พบและพูดคุยกับคุณเร็วๆ%20นี้"
+        # ข้อความสำหรับ Outlook (ไม่มีข้อความใน body)
+        mailto_link = f"mailto:?subject=Interview%20-%20US"
 
         st.markdown(f"""
             <div class="card">
@@ -238,10 +265,10 @@ if df is not None:
                     <li><b>Experience Details:</b> {experience}</li>
                 </ul>
                 <a href="{mailto_link}" target="_blank" onClick="if(!window.location.href.includes('mailto')) alert('Failed to open Outlook. Please ensure Outlook is set as your default email client.');">
-                    <button>Send Interview Invite</button>
+                    <button class="send-outlook">Send Interview Invite via Outlook</button>
                 </a>
                 <a href="{meeting_link}" target="_blank">
-                    <button style='background:#3182ce; color:#ffffff; margin-left:10px;'>Schedule Interview via Teams</button>
+                    <button class="schedule-teams">Schedule Interview via Teams</button>
                 </a>
             </div>
         """, unsafe_allow_html=True)
