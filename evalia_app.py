@@ -10,103 +10,120 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Modern Dark Theme CSS
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
 .stApp {
-    background-color: #0f172a;
-    color: #f1f5f9;
-    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top left, #0f172a, #000000);
+    color: #e0f2fe;
+    font-family: 'Orbitron', sans-serif;
 }
+
 .stHeader {
-    background: linear-gradient(90deg, #0ea5e9, #3b82f6, #6366f1);
+    background: linear-gradient(90deg, #06b6d4, #3b82f6, #9333ea);
     color: #ffffff;
     padding: 20px;
-    border-radius: 16px;
+    border-radius: 20px;
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 20px #06b6d4;
 }
+
 .stButton>button {
     border-radius: 12px;
     padding: 10px 20px;
-    font-weight: 600;
+    font-weight: 700;
     transition: all 0.3s ease;
-    background: #3b82f6;
+    background: #06b6d4;
     color: white;
     border: none;
 }
+
 .stButton>button:hover {
     transform: scale(1.05);
-    background: #2563eb;
+    background: #0ea5e9;
+    box-shadow: 0 0 10px #06b6d4;
 }
+
 .send-outlook {
-    background: #1e40af;
+    background: #3b82f6;
     color: #ffffff;
     border: none;
     padding: 10px 20px;
-    font-weight: 600;
+    font-weight: 700;
     border-radius: 12px;
+    box-shadow: 0 0 10px #3b82f6;
 }
+
 .send-outlook:hover {
-    background: #1e3a8a;
+    background: #2563eb;
     transform: scale(1.05);
 }
+
 .schedule-teams {
     background: #9333ea;
     color: #ffffff;
     border: none;
     padding: 10px 20px;
-    font-weight: 600;
+    font-weight: 700;
     border-radius: 12px;
     margin-left: 10px;
+    box-shadow: 0 0 10px #9333ea;
 }
+
 .schedule-teams:hover {
     background: #7e22ce;
     transform: scale(1.05);
 }
+
 .card {
-    background: #1e293b;
+    background: rgba(30, 41, 59, 0.85);
     padding: 20px;
-    border-radius: 16px;
+    border-radius: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
     transition: all 0.3s ease;
 }
+
 .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.8);
 }
+
 h1, h2, h3, h4 {
     color: #e0f2fe;
     font-weight: 700;
 }
+
 .summary-total {
     font-size: 36px;
     font-weight: 700;
     color: #facc15;
-    text-shadow: 0 0 5px rgba(250, 204, 21, 0.8);
+    text-shadow: 0 0 10px #facc15;
     margin-bottom: 15px;
 }
+
 .analyzed-total {
     font-size: 24px;
-    font-weight: 600;
+    font-weight: 700;
     color: #67e8f9;
+    text-shadow: 0 0 8px #67e8f9;
     margin-top: 15px;
 }
-.high { color: #22c55e; font-weight: 600; }
-.mid { color: #facc15; font-weight: 600; }
-.low { color: #ef4444; font-weight: 600; }
+
+.high { color: #22c55e; font-weight: 700; text-shadow: 0 0 5px #22c55e; }
+.mid { color: #facc15; font-weight: 700; text-shadow: 0 0 5px #facc15; }
+.low { color: #ef4444; font-weight: 700; text-shadow: 0 0 5px #ef4444; }
+
 .logo-container img {
     width: 100%;
     max-height: 500px;
     object-fit: contain;
-    filter: drop-shadow(0 0 8px #0ea5e9);
+    filter: drop-shadow(0 0 12px #06b6d4);
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Logo
 st.markdown('<div class="logo-container">', unsafe_allow_html=True)
 st.image("Evalia_logo.png", use_column_width=True)
 st.markdown('</div>', unsafe_allow_html=True)
@@ -114,7 +131,6 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.markdown('<div class="stHeader"><h1>Project Evalia</h1><h3>Free AI Applicant Analyzer for BHQ HR</h3></div>', unsafe_allow_html=True)
 st.divider()
 
-# Data Import
 upload_option = st.radio("Choose data input method:", ("Upload Excel File", "Provide Online Excel Link"), horizontal=True)
 
 df = None
