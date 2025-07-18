@@ -281,23 +281,28 @@ if df is not None:
     col1, col2, col3, col4, col5, col6 = st.columns(6)
 
     with col1:
-        position_options = ['All'] + list(df['ตำแหน่งงานที่ท่านสนใจ'].dropna().unique())
-        selected_position = st.selectbox("Position", position_options)
-    with col2:
-        exp_options = ['All', 'มากกว่า 10ปี', '7-10 ปี', '4-6 ปี', '1-3 ปี']
-        selected_exp = st.selectbox("Experience", exp_options)
-    with col3:
-        toeic_min = st.number_input("Minimum TOEIC Score", min_value=0, max_value=990, value=0)
-    with col4:
-        bmi_max = st.number_input("Maximum BMI", min_value=0.0, value=25.0)
-    with col5:
         selected_date = st.date_input("Select Date", value=None)
-    with col6:
+    with col2:
         rank_options = ['All', 'High Rank', 'Mid Rank', 'Low Rank']
         selected_rank = st.selectbox("Rank", rank_options)
+    with col3:
+        position_options = ['All'] + list(df['ตำแหน่งงานที่ท่านสนใจ'].dropna().unique())
+        selected_position = st.selectbox("Position", position_options)
+    with col4:
+        exp_options = ['All', 'มากกว่า 10ปี', '7-10 ปี', '4-6 ปี', '1-3 ปี']
+        selected_exp = st.selectbox("Experience", exp_options)
+    with col5:
+        toeic_min = st.number_input("Minimum TOEIC Score", min_value=0, max_value=990, value=0)
+    with col6:
+        bmi_max = st.number_input("Maximum BMI", min_value=0.0, value=25.0)
 
     # กรองข้อมูล
     filtered_df = df.copy()
+    if selected_date:
+        if 'Application Date' in df.columns:
+            filtered_df = filtered_df[filtered_df['Application Date'] == pd.Timestamp(selected_date)]
+    if selected_rank != 'All':
+        filtered_df = filtered_df[filtered_df['Rank'] == selected_rank]
     if selected_position != 'All':
         filtered_df = filtered_df[filtered_df['ตำแหน่งงานที่ท่านสนใจ'] == selected_position]
     if selected_exp != 'All':
@@ -306,11 +311,6 @@ if df is not None:
         filtered_df = filtered_df[filtered_df['TOEIC Score (ถ้ามี)'].fillna(0) >= toeic_min]
     if bmi_max > 0:
         filtered_df = filtered_df[filtered_df['BMI'].fillna(100) <= bmi_max]
-    if selected_date:
-        if 'Application Date' in df.columns:
-            filtered_df = filtered_df[filtered_df['Application Date'] == pd.Timestamp(selected_date)]
-    if selected_rank != 'All':
-        filtered_df = filtered_df[filtered_df['Rank'] == selected_rank]
 
     st.write(f"Found {len(filtered_df)} applicants after filtering")
     st.dataframe(filtered_df)
@@ -323,6 +323,7 @@ if df is not None:
         experience = row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', 'N/A')
         name = f"{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}"
         position = row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')
+        salary = row.get('Salary', 'N/A')  # สมมติมีคอลัมน์ 'Salary'
         date = "20 July"
         time = "10:00 AM"
         meeting_link = "https://teams.microsoft.com/l/meeting/new"
@@ -340,6 +341,7 @@ if df is not None:
                     <li><b>Position:</b> {position}</li>
                     <li><b>Department:</b> {row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</li>
                     <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
+                    <li><b>Salary:</b> {salary}</li>  <!-- เพิ่มการแสดงผลเงินเดือน -->
                     <li><b>Experience Details:</b> {experience}</li>
                 </ul>
                 <a href="{mailto_link}" target="_blank" onClick="if(!window.location.href.includes('mailto')) alert('Failed to open Outlook. Please ensure Outlook is set as your default email client.');">
