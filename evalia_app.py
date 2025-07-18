@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 import io
 
+# กำหนดการตั้งค่าแอป
 st.set_page_config(
     page_title="Project Evalia",
     page_icon=None,
@@ -10,151 +11,159 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# CSS Sci-fi Theme
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-.stApp {
-    background: radial-gradient(circle at top left, #0f172a, #000000);
-    color: #e0f2fe;
-    font-family: 'Orbitron', sans-serif;
-}
-.stHeader {
-    background: linear-gradient(90deg, #06b6d4, #3b82f6, #9333ea);
-    color: #ffffff;
-    padding: 20px;
-    border-radius: 20px;
-    text-align: center;
-    box-shadow: 0 0 20px #06b6d4;
-}
-.stButton>button {
-    border-radius: 12px;
-    padding: 10px 20px;
-    font-weight: 700;
-    transition: all 0.3s ease;
-    background: #06b6d4;
-    color: white;
-    border: none;
-}
-.stButton>button:hover {
-    transform: scale(1.05);
-    background: #0ea5e9;
-    box-shadow: 0 0 10px #06b6d4;
-}
-.send-outlook {
-    background: #3b82f6;
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
-    font-weight: 700;
-    border-radius: 12px;
-    box-shadow: 0 0 10px #3b82f6;
-}
-.send-outlook:hover {
-    background: #2563eb;
-    transform: scale(1.05);
-}
-.schedule-teams {
-    background: #9333ea;
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
-    font-weight: 700;
-    border-radius: 12px;
-    margin-left: 10px;
-    box-shadow: 0 0 10px #9333ea;
-}
-.schedule-teams:hover {
-    background: #7e22ce;
-    transform: scale(1.05);
-}
-.card {
-    background: rgba(30, 41, 59, 0.85);
-    padding: 20px;
-    border-radius: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
-    transition: all 0.3s ease;
-}
-.card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0 25px rgba(6, 182, 212, 0.8);
-}
-h1, h2, h3, h4 {
-    color: #e0f2fe;
-    font-weight: 700;
-}
-.summary-total {
-    font-size: 36px;
-    font-weight: 700;
-    color: #facc15;
-    text-shadow: 0 0 10px #facc15;
-    margin-bottom: 15px;
-}
-.analyzed-total {
-    font-size: 24px;
-    font-weight: 700;
-    color: #67e8f9;
-    text-shadow: 0 0 8px #67e8f9;
-    margin-top: 15px;
-}
-.high { color: #22c55e; font-weight: 700; text-shadow: 0 0 5px #22c55e; }
-.mid { color: #facc15; font-weight: 700; text-shadow: 0 0 5px #facc15; }
-.low { color: #ef4444; font-weight: 700; text-shadow: 0 0 5px #ef4444; }
-.logo-container img {
-    width: 100%;
-    max-height: 500px;
-    object-fit: contain;
-    filter: drop-shadow(0 0 12px #06b6d4);
-}
-</style>
-""", unsafe_allow_html=True)
+# สไตล์ CSS ธีมพื้นหลังดำ ใช้ฟอนต์ "Fira Code" สีอ่านง่ายบนพื้นหลังดำ
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+    .stApp {
+        background-color: #000000;
+        color: #d1d5db;
+        font-family: 'Fira Code', monospace;
+    }
+    .stHeader {
+        background-color: #1a202c;
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+    }
+    .stButton>button {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    .send-outlook {
+        background-color: #1e40af;
+        color: #ffffff;
+        border: 1px solid #1e40af;
+        padding: 8px 16px;
+    }
+    .send-outlook:hover {
+        background-color: #1e3a8a;
+        color: #ffffff;
+        transform: scale(1.05);
+    }
+    .schedule-teams {
+        background-color: #6b21a8;
+        color: #ffffff;
+        border: 1px solid #6b21a8;
+        padding: 8px 16px;
+        margin-left: 10px;
+    }
+    .schedule-teams:hover {
+        background-color: #5b1a99;
+        color: #ffffff;
+        transform: scale(1.05);
+    }
+    .card {
+        background: #2d3748;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    h1, h2, h3, h4 {
+        color: #e2e8f0;
+        font-weight: 600;
+    }
+    ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    ul li {
+        margin: 5px 0;
+    }
+    a {
+        text-decoration: none;
+    }
+    .high { color: #00FF00; }
+    .low { color: #FF0000; }
+    .mid { color: #FFFF00; }
+    .summary-total {
+        font-size: 32px;
+        font-weight: bold;
+        color: #e2e8f0;
+        margin-bottom: 10px;
+    }
+    .analyzed-total {
+        font-size: 20px;
+        font-weight: bold;
+        color: #e2e8f0;
+        margin-top: 10px;
+    }
+    .logo-container {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .logo-container img {
+        width: 100%;
+        max-height: 600px; /* ปรับตามสัดส่วน 16:9 จาก 1920x1080 */
+        object-fit: contain; /* รักษาสัดส่วน */
+        image-rendering: -webkit-optimize-contrast; /* ปรับปรุงความชัด */
+        image-rendering: crisp-edges; /* ป้องกันเบลอ */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
+# แสดงโลโก้ให้คลอบคลุมด้านบน
 st.markdown('<div class="logo-container">', unsafe_allow_html=True)
-st.image("Evalia_logo.png", use_column_width=True)
+st.image("Evalia_logo.png", width=1920)  # ใช้ความกว้างเท่าความละเอียดเดิม
 st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown('<div class="stHeader"><h1>Project Evalia</h1><h3>Free AI Applicant Analyzer for BHQ HR</h3></div>', unsafe_allow_html=True)
+# หัวข้อและคำอธิบาย
+st.markdown('<div class="stHeader"><h1>Project Evalia</h1><h3>Evalute + AI Applicant Analyzer with Extended Rule-Based Keywords</h3></div>', unsafe_allow_html=True)
 st.divider()
 
+# การเลือกวิธีการนำเข้าข้อมูล
 upload_option = st.radio("Choose data input method:", ("Upload Excel File", "Provide Online Excel Link"), horizontal=True)
 
 df = None
 if upload_option == "Upload Excel File":
     uploaded_file = st.file_uploader("Upload your Excel file (.xlsx)", type=["xlsx"])
-    if uploaded_file:
-        df = pd.read_excel(uploaded_file)
+    if uploaded_file is not None:
+        try:
+            df = pd.read_excel(uploaded_file)
+        except Exception as e:
+            st.error(f"Error reading uploaded file: {e}")
 elif upload_option == "Provide Online Excel Link":
     excel_link = st.text_input("Paste your Microsoft Excel Online Link:")
     if excel_link:
         try:
-            response = requests.get(excel_link, timeout=10)
+            response = requests.get(excel_link, stream=True, timeout=10)
             response.raise_for_status()
             df = pd.read_excel(io.BytesIO(response.content))
         except Exception as e:
-            st.error(f"Error fetching Excel: {e}")
+            st.error(f"Error fetching Excel from link: {e}. The SharePoint link may require authentication. Please upload the file directly or ensure the link is publicly accessible.")
 
 if df is not None:
     st.success("Data loaded successfully!")
+    st.dataframe(df)
 
+    # ฟังก์ชันคำนวณ BMI
     def calculate_bmi(row):
         try:
             weight = row['Weight_kg']
             height = row['Height_cm']
             if pd.isna(weight) or pd.isna(height) or height == 0:
                 return None
-            return round(weight / ((height / 100) ** 2), 2)
-        except:
+            bmi = weight / ((height / 100) ** 2)
+            return round(bmi, 2)
+        except Exception as e:
+            st.warning(f"Error calculating BMI for a row: {e}")
             return None
 
+    # ฟังก์ชันกำหนดระดับ BMI
     def assign_info_level(bmi):
         if bmi is None:
-            return "Unknown", "BMI data missing"
+            return "Unknown", "BMI data is missing"
         elif bmi > 25:
             return "Low", "BMI exceeds 25"
         else:
-            return "High", "BMI normal"
+            return "High", "BMI within normal range"
 
+    # ฟังก์ชันกำหนดระดับประสบการณ์
     def assign_exp_level(exp_years, description):
         try:
             exp_str = str(exp_years).strip()
@@ -169,49 +178,126 @@ if df is not None:
             else:
                 years = 0
 
-            desc_lower = str(description).lower()
             keywords_high = ["lead", "manager", "senior", "expert", "specialist", "consultant", "director", "chief", "head", "principal"]
             keywords_mid = ["assist", "support", "junior", "operator", "staff", "clerk", "coordinator", "trainee"]
 
-            if years >= 5:
-                return "High", "Over 5 years experience"
-            elif years >= 2:
-                return "Mid", "2-5 years experience"
-            else:
-                for kw in keywords_high:
-                    if kw in desc_lower:
-                        return "Mid", f"Keyword '{kw}' found"
-                for kw in keywords_mid:
-                    if kw in desc_lower:
-                        return "Low", f"Keyword '{kw}' found"
-                return "Low", "Less than 2 years, no keywords"
-        except:
-            return "Unknown", "Error in experience check"
+            desc_lower = str(description).lower()
 
+            if years >= 5:
+                return "High", "Experience over 5 years"
+            elif years >= 2:
+                return "Mid", "Experience between 2 and 5 years"
+            else:
+                for word in keywords_high:
+                    if word.lower() in desc_lower:
+                        return "Mid", f"Keyword '{word}' found in description"
+                for word in keywords_mid:
+                    if word.lower() in desc_lower:
+                        return "Low", f"Keyword '{word}' found in description"
+                return "Low", "No significant keywords found, less than 2 years experience"
+        except Exception as e:
+            return "Unknown", f"Error processing experience: {e}"
+
+    # คำนวณ BMI และระดับประสบการณ์
     df['BMI'] = df.apply(calculate_bmi, axis=1)
-    df[['Info Level', 'Info Reason']] = df['BMI'].apply(lambda x: pd.Series(assign_info_level(x)))
+    df[['Info Level', 'Info Reason']] = df['BMI'].apply(lambda bmi: pd.Series(assign_info_level(bmi)))
     df[['Exp Level', 'Exp Reason']] = df.apply(
         lambda row: pd.Series(assign_exp_level(
             row.get('Experience_Years', 0),
             row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', '')
-        )), axis=1)
+        )), axis=1
+    )
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Applicants", len(df))
-    col2.metric("Unique Positions", df['ตำแหน่งงานที่ท่านสนใจ'].nunique())
-    col3.metric("Analyzed Records", df.shape[0])
+    # Summary (อยู่ด้านบน)
+    st.subheader("Summary")
+    total_applicants = len(df)
+    st.markdown(f'<div class="summary-total">Total Applicants: {total_applicants}</div>', unsafe_allow_html=True)
+    st.write("### Number of Applicants by Position")
+    position_counts = df['ตำแหน่งงานที่ท่านสนใจ'].value_counts().reset_index()
+    position_counts.columns = ['Position', 'Count']
+    st.write(position_counts)
 
-    st.subheader("Applicants Data")
-    st.dataframe(df, use_container_width=True)
+    st.write("### Experience Distribution")
+    exp_counts = df['Experience_Years'].value_counts().reset_index()
+    exp_counts.columns = ['Experience', 'Count']
+    st.write(exp_counts)
 
-    st.subheader("Filters")
-    fcol1, fcol2 = st.columns(2)
-    with fcol1:
-        position_filter = st.selectbox("Filter by Position", ['All'] + df['ตำแหน่งงานที่ท่านสนใจ'].dropna().unique().tolist())
-    with fcol2:
-        bmi_filter = st.slider("Max BMI", min_value=0.0, max_value=40.0, value=25.0)
+    st.write("### BMI Level Distribution")
+    bmi_counts = df['Info Level'].value_counts().reset_index()
+    bmi_counts.columns = ['BMI Level', 'Count']
+    st.write(bmi_counts)
 
+    # ส่วนการกรองข้อมูล
+    st.subheader("Filter Applicants")
+    col1, col2, col3, col4, col5 = st.columns(5)
+
+    with col1:
+        position_options = ['All'] + list(df['ตำแหน่งงานที่ท่านสนใจ'].dropna().unique())
+        selected_position = st.selectbox("Position", position_options)
+    with col2:
+        exp_options = ['All', 'มากกว่า 10ปี', '7-10 ปี', '4-6 ปี', '1-3 ปี']
+        selected_exp = st.selectbox("Experience", exp_options)
+    with col3:
+        toeic_min = st.number_input("Minimum TOEIC Score", min_value=0, max_value=990, value=0)
+    with col4:
+        bmi_max = st.number_input("Maximum BMI", min_value=0.0, value=25.0)
+    with col5:
+        selected_date = st.date_input("Select Date", value=None)
+
+    # กรองข้อมูล
     filtered_df = df.copy()
-    if position_filter != 'All':
-        filtered_df = filtered_df[filtered_df['ตำแหน่งงานที่ท่านสนใจ'] == position_filter]
-    filtered_df = filtered_df[fi]()
+    if selected_position != 'All':
+        filtered_df = filtered_df[filtered_df['ตำแหน่งงานที่ท่านสนใจ'] == selected_position]
+    if selected_exp != 'All':
+        filtered_df = filtered_df[filtered_df['Experience_Years'] == selected_exp]
+    if toeic_min > 0:
+        filtered_df = filtered_df[filtered_df['TOEIC Score (ถ้ามี)'].fillna(0) >= toeic_min]
+    if bmi_max > 0:
+        filtered_df = filtered_df[filtered_df['BMI'].fillna(100) <= bmi_max]
+    if selected_date:
+        # ตัวอย่างการกรองตามวันที่ (สมมติมีคอลัมน์ 'Application Date')
+        if 'Application Date' in df.columns:
+            filtered_df = filtered_df[filtered_df['Application Date'] == pd.Timestamp(selected_date)]
+
+    st.write(f"Found {len(filtered_df)} applicants after filtering")
+    st.dataframe(filtered_df)
+
+    # แสดงผลผู้สมัครที่กรองแล้ว
+    st.subheader("Analyzed Applicants")
+    total_analyzed = len(filtered_df)
+    st.markdown(f'<div class="analyzed-total">Total Analyzed: {total_analyzed}</div>', unsafe_allow_html=True)
+    for idx, row in filtered_df.iterrows():
+        experience = row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', 'N/A')
+        name = f"{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}"
+        position = row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')
+        date = "20 July"  # สามารถปรับได้
+        time = "10:00 AM"  # สามารถปรับได้
+        meeting_link = "https://teams.microsoft.com/l/meeting/new"  # สามารถปรับได้
+        your_name = "HR Team"  # สามารถปรับได้
+
+        # ข้อความสำหรับ Outlook (ไม่มีข้อความใน body)
+        mailto_link = f"mailto:?subject=Interview%20-%20US"
+
+        st.markdown(f"""
+            <div class="card">
+                <h4>{name}</h4>
+                <ul>
+                    <li><b>BMI:</b> {row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</li>
+                    <li><b>Info Level:</b> <span class="{row['Info Level'].lower()}">{row['Info Level']}</span> — {row['Info Reason']}</li>
+                    <li><b>Experience Level:</b> <span class="{row['Exp Level'].lower()}">{row['Exp Level']}</span> — {row['Exp Reason']}</li>
+                    <li><b>Position:</b> {position}</li>
+                    <li><b>Department:</b> {row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</li>
+                    <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
+                    <li><b>Experience Details:</b> {experience}</li>
+                </ul>
+                <a href="{mailto_link}" target="_blank" onClick="if(!window.location.href.includes('mailto')) alert('Failed to open Outlook. Please ensure Outlook is set as your default email client.');">
+                    <button class="send-outlook">Send Interview Invite via Outlook</button>
+                </a>
+                <a href="{meeting_link}" target="_blank">
+                    <button class="schedule-teams">Schedule Interview via Teams</button>
+                </a>
+            </div>
+        """, unsafe_allow_html=True)
+
+else:
+    st.info("Please upload a file or paste an Excel Online link to begin.")
