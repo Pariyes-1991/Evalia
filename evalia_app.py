@@ -90,13 +90,25 @@ st.markdown(
         color: #e2e8f0;
         margin-top: 10px;
     }
+    .logo-container {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    .logo-container img {
+        width: 100%;
+        max-height: 150px;
+        object-fit: contain;
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# แสดงโลโก้จาก root
-st.image("Evalia_logo.png", width=200)
+# แสดงโลโก้ให้คลอบคลุมด้านบน
+st.markdown('<div class="logo-container">', unsafe_allow_html=True)
+st.image("Evalia_logo.png", width=1000)  # ปรับขนาดให้ใหญ่ขึ้นและเต็มความกว้าง
+st.markdown('</div>', unsafe_allow_html=True)
 
 # หัวข้อและคำอธิบาย
 st.markdown('<div class="stHeader"><h1>Project Evalia</h1><h3>Evalute + AI Applicant Analyzer with Extended Rule-Based Keywords</h3></div>', unsafe_allow_html=True)
