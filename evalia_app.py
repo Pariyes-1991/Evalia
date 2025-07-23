@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# สไตล์ CSS ธีมพื้นหลังดำ ใช้ฟอนต์ "Fira Code" สีอ่านง่ายบนพื้นหลังดำ
+# สไตล์ CSS ธีมพื้นหลังดำ ใช้ฟอนต์ "Fira Code" สีอ่านง่าย
 st.markdown(
     """
     <style>
@@ -122,12 +122,12 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# แสดงโลโก้ให้คลอบคลุมด้านบน
+# แสดงโลโก้
 st.markdown('<div class="logo-container">', unsafe_allow_html=True)
 st.image("Evalia_logo.png", width=1920)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# เพิ่มคำอธิบายหน้าแรก
+# คำอธิบายหน้าแรก
 st.markdown(
     """
     <div class="description">
@@ -135,13 +135,13 @@ st.markdown(
         <p><a href="https://project-evalia.streamlit.app/" target="_blank">https://project-evalia.streamlit.app/</a></p>
         <h3>Key Features:</h3>
         <ul>
-            <li>BMI & Health Indicator Check — Automatically calculates BMI and classifies applicants' health status.</li>
-            <li>Experience Analyzer — Assesses candidates based on their years of experience and job descriptions using keyword detection.</li>
-            <li>Position & Skill Filter — Instantly filter applicants by position, BMI threshold, and TOEIC scores.</li>
-            <li>Ready-to-Use Interview Tools — One-click buttons to send interview invites via Outlook or schedule meetings on Microsoft Teams.</li>
-            <li>Modern and User-Friendly Dashboard — Clean, intuitive UI powered by Streamlit.</li>
+            <li>BMI Check — Automatically calculates BMI and classifies applicants' health status for BHQ HR.</li>
+            <li>Experience Analyzer — Assesses candidates using keyword detection in job descriptions.</li>
+            <li>Position & Skill Filter — Filter applicants by position, BMI threshold, and TOEIC scores.</li>
+            <li>Interview Tools — One-click buttons to send invites via Outlook or schedule on Microsoft Teams.</li>
+            <li>User-Friendly Dashboard — Clean, intuitive UI powered by Streamlit for BHQ HR teams.</li>
         </ul>
-        <p>EVALIA is designed to enhance decision-making for BHQ HR teams by quickly summarizing key applicant insights — all in one dashboard, completely free to use without any running or maintenance fees.</p>
+        <p>EVALIA is a cutting-edge Applicant Analyzer designed to enhance decision-making for BHQ HR by providing a comprehensive Dashboard.</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -156,6 +156,7 @@ if upload_option == "Upload Excel File":
     if uploaded_file is not None:
         try:
             df = pd.read_excel(uploaded_file)
+            st.success("Data loaded successfully from uploaded file!")
         except Exception as e:
             st.error(f"Error reading uploaded file: {e}")
 elif upload_option == "Provide Online Excel Link":
@@ -165,6 +166,7 @@ elif upload_option == "Provide Online Excel Link":
             response = requests.get(excel_link, stream=True, timeout=10)
             response.raise_for_status()
             df = pd.read_excel(io.BytesIO(response.content))
+            st.success("Data loaded successfully from online link!")
         except Exception as e:
             st.error(f"Error fetching Excel from link: {e}. The SharePoint link may require authentication. Please upload the file directly or ensure the link is publicly accessible.")
 
@@ -190,9 +192,9 @@ if df is not None:
         if bmi is None:
             return "Unknown", "BMI data is missing"
         elif bmi > 25:
-            return "Low", "BMI exceeds 25"
+            return "Low", "BMI exceeds 25, health concern noted"
         else:
-            return "High", "BMI within normal range"
+            return "High", "BMI within normal range, suitable for BHQ HR"
 
     # ฟังก์ชันกำหนดระดับประสบการณ์
     def assign_exp_level(exp_years, description):
@@ -209,27 +211,29 @@ if df is not None:
             else:
                 years = 0
 
-            keywords_high = ["lead", "manager", "senior", "expert", "specialist", "consultant", "director", "chief", "head", "principal"]
-            keywords_mid = ["assist", "support", "junior", "operator", "staff", "clerk", "coordinator", "trainee"]
+            keywords_high = [
+                "lead", "manager", "senior", "expert", "specialist", "consultant", "director", "chief", "head", "principal",
+                "executive", "supervisor", "team leader", "project manager", "architect", "strategist", "advisor", "partner",
+                "vice president", "general manager", "coordinator lead", "master", "professor", "engineer lead", "analyst senior"
+            ]
+            keywords_mid = [
+                "assist", "support", "junior", "operator", "staff", "clerk", "coordinator", "trainee", "associate", "assistant",
+                "technician", "helper", "intern", "apprentice", "administrator", "analyst", "officer", "representative",
+                "executive assistant", "data entry", "customer service", "field assistant", "junior developer", "team member"
+            ]
 
             desc_lower = str(description).lower()
 
-            if years >= 5:
-                return "High", "Experience over 5 years"
-            elif years >= 2:
-                return "Mid", "Experience between 2 and 5 years"
+            if years >= 5 or any(word in desc_lower for word in keywords_high):
+                return "High", "Experience over 5 years or senior role detected"
+            elif years >= 2 or any(word in desc_lower for word in keywords_mid):
+                return "Mid", "Experience between 2-5 years or mid-level role"
             else:
-                for word in keywords_high:
-                    if word.lower() in desc_lower:
-                        return "Mid", f"Keyword '{word}' found in description"
-                for word in keywords_mid:
-                    if word.lower() in desc_lower:
-                        return "Low", f"Keyword '{word}' found in description"
-                return "Low", "No significant keywords found, less than 2 years experience"
+                return "Low", "Less than 2 years or no significant keywords"
         except Exception as e:
             return "Unknown", f"Error processing experience: {e}"
 
-    # คำนวณ BMI และระดับประสบการณ์
+    # คำนวณ BMI และระดับ
     df['BMI'] = df.apply(calculate_bmi, axis=1)
     df[['Info Level', 'Info Reason']] = df['BMI'].apply(lambda bmi: pd.Series(assign_info_level(bmi)))
     df[['Exp Level', 'Exp Reason']] = df.apply(
@@ -257,7 +261,7 @@ if df is not None:
 
     df['Rank'] = df.apply(assign_rank, axis=1)
 
-    # Summary (อยู่ด้านบน)
+    # Summary
     st.subheader("Summary")
     total_applicants = len(df)
     st.markdown(f'<div class="summary-total">Total Applicants: {total_applicants}</div>', unsafe_allow_html=True)
@@ -276,7 +280,7 @@ if df is not None:
     bmi_counts.columns = ['BMI Level', 'Count']
     st.write(bmi_counts)
 
-    # ส่วนการกรองข้อมูล
+    # Filter Applicants
     st.subheader("Filter Applicants")
     col1, col2, col3, col4, col5, col6 = st.columns(6)
 
@@ -315,7 +319,7 @@ if df is not None:
     st.write(f"Found {len(filtered_df)} applicants after filtering")
     st.dataframe(filtered_df)
 
-    # แสดงผลผู้สมัครที่กรองแล้ว
+    # Analyzed Applicants
     st.subheader("Analyzed Applicants")
     total_analyzed = len(filtered_df)
     st.markdown(f'<div class="analyzed-total">Total Analyzed: {total_analyzed}</div>', unsafe_allow_html=True)
@@ -323,13 +327,13 @@ if df is not None:
         experience = row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', 'N/A')
         name = f"{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}"
         position = row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')
-        expected_salary = row.get('เงินเดือนที่คาดหวัง', 'N/A')  # เปลี่ยนเป็น 'เงินเดือนที่คาดหวัง'
-        date = "20 July"
-        time = "10:00 AM"
+        expected_salary = row.get('เงินเดือนที่คาดหวัง', 'N/A')
+        date = "23 July 2025"
+        time = "09:00 AM"
         meeting_link = "https://teams.microsoft.com/l/meeting/new"
-        your_name = "HR Team"
+        your_name = "BHQ HR Team"
 
-        mailto_link = f"mailto:?subject=Interview%20-%20US"
+        mailto_link = f"mailto:?subject=Interview%20Invitation%20-%20{name}&body=Dear%20{name},%0D%0AWe%20are%20pleased%20to%20invite%20you%20for%20an%20interview%20for%20{position}%20on%20{date}%20at%20{time}.%20Please%20confirm%20your%20availability.%0D%0ARegards,%0A{your_name}"
 
         st.markdown(f"""
             <div class="card">
@@ -341,10 +345,10 @@ if df is not None:
                     <li><b>Position:</b> {position}</li>
                     <li><b>Department:</b> {row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</li>
                     <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
-                    <li><b>Expected Salary:</b> {expected_salary}</li>  <!-- เปลี่ยนชื่อเป็น Expected Salary -->
+                    <li><b>Expected Salary:</b> {expected_salary}</li>
                     <li><b>Experience Details:</b> {experience}</li>
                 </ul>
-                <a href="{mailto_link}" target="_blank" onClick="if(!window.location.href.includes('mailto')) alert('Failed to open Outlook. Please ensure Outlook is set as your default email client.');">
+                <a href="{mailto_link}" target="_blank" onclick="if(!window.location.href.includes('mailto')) alert('Failed to open Outlook. Ensure Outlook is your default email client.');">
                     <button class="send-outlook">Send Interview Invite via Outlook</button>
                 </a>
                 <a href="{meeting_link}" target="_blank">
@@ -352,6 +356,5 @@ if df is not None:
                 </a>
             </div>
         """, unsafe_allow_html=True)
-
 else:
     st.info("Please upload a file or paste an Excel Online link to begin.")
