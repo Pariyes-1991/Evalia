@@ -361,7 +361,7 @@ if df is not None:
         if selected_status != current_status:
             st.session_state['applicant_statuses'][status_key] = selected_status
 
-        date = "29 July 2025"  # Updated to current date
+        date = "29 July 2025"
         time = "04:30 PM"
         meeting_link = "https://teams.microsoft.com/l/meeting/new"
         your_name = "BHQ HR Team"
@@ -373,6 +373,7 @@ if df is not None:
             <div class="card">
                 <h4>{name}</h4>
                 <ul>
+                    <li><b>Status:</b> {selected_status if selected_status != 'None' else 'Not Set'}</li>
                     <li><b>BMI:</b> {row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</li>
                     <li><b>Info Level:</b> <span class="{row['Info Level'].lower()}">{row['Info Level']}</span> — {row['Info Reason']}</li>
                     <li><b>Experience Level:</b> <span class="{row['Exp Level'].lower()}">{row['Exp Level']}</span> — {row['Exp Reason']}</li>
@@ -381,7 +382,6 @@ if df is not None:
                     <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
                     <li><b>Expected Salary:</b> {expected_salary}</li>
                     <li><b>Experience Details:</b> {experience}</li>
-                    <li><b>Status:</b> {selected_status if selected_status != 'None' else 'Not Set'}</li>
                 </ul>
                 <a href="{mailto_link}" target="_blank" onclick="if(!window.location.href.includes('mailto')) alert('Failed to open Outlook. Ensure Outlook is your default email client.');">
                     <button class="send-outlook">Send Interview Invite via Outlook</button>
