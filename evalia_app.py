@@ -54,38 +54,12 @@ st.markdown(
         color: #ffffff;
         transform: scale(1.05);
     }
-    .send-passed {
-        background-color: #10b981;
-        color: #ffffff;
-        border: 1px solid #10b981;
-        padding: 8px 16px;
-        margin-left: 10px;
-    }
-    .send-passed:hover {
-        background-color: #059669;
-        color: #ffffff;
-        transform: scale(1.05);
-    }
     .card {
         background: #2d3748;
         padding: 15px;
         border-radius: 10px;
         margin-bottom: 15px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        position: relative;
-    }
-    .card-content {
-        display: flex;
-        flex-direction: column;
-    }
-    .status-select {
-        margin-bottom: 10px;
-        padding: 5px;
-        border: 1px solid #4b5563;
-        border-radius: 5px;
-        background-color: #2d3748;
-        color: #d1d5db;
-        width: 200px;
     }
     h1, h2, h3, h4 {
         color: #e2e8f0;
@@ -349,67 +323,37 @@ if df is not None:
     st.subheader("Analyzed Applicants")
     total_analyzed = len(filtered_df)
     st.markdown(f'<div class="analyzed-total">Total Analyzed: {total_analyzed}</div>', unsafe_allow_html=True)
-
-    # Initialize session state for statuses if not exists
-    if 'applicant_statuses' not in st.session_state:
-        st.session_state['applicant_statuses'] = {}
-
-    # Summary of Statuses
-    st.subheader("Status Summary")
-    status_counts = {status: list(st.session_state['applicant_statuses'].values()).count(status) for status in ['โทรแล้ว', 'สัมภาษณ์แล้ว', 'ไม่ผ่านคัดเลือก', 'ผ่านสัมภาษณ์แล้ว']}
-    st.write("### Status Distribution")
-    status_df = pd.DataFrame(list(status_counts.items()), columns=['Status', 'Count'])
-    st.write(status_df)
-
     for idx, row in filtered_df.iterrows():
         experience = row.get('ช่วยเล่าประสบการณ์การทำงานของท่านโดยละเอียด', 'N/A')
         name = f"{row.get('ชื่อ (Name)', 'Unknown')} {row.get('ชื่อสกุล (Surname)', '')}"
         position = row.get('ตำแหน่งงานที่ท่านสนใจ', 'N/A')
         expected_salary = row.get('เงินเดือนที่คาดหวัง', 'N/A')
-        email = row.get('Email', f"{name.replace(' ', '.')}@example.com").replace(' ', '.')
-
-        # Get or initialize status for this applicant
-        status_key = f"{name}_{idx}"
-        current_status = st.session_state['applicant_statuses'].get(status_key, 'None')
-
-        with st.form(key=f"form_{idx}"):
-            status_options = ['None', 'โทรแล้ว', 'สัมภาษณ์แล้ว', 'ไม่ผ่านคัดเลือก', 'ผ่านสัมภาษณ์แล้ว']
-            selected_status = st.selectbox("Status", status_options, index=status_options.index(current_status) if current_status in status_options else 0, key=f"status_{idx}")
-            submit_button = st.form_submit_button("Update Status")
-
-        if submit_button and selected_status != current_status:
-            st.session_state['applicant_statuses'][status_key] = selected_status
-
-        date = "29 July 2025"
-        time = "04:30 PM"
+        date = "23 July 2025"
+        time = "09:00 AM"
         meeting_link = "https://teams.microsoft.com/l/meeting/new"
         your_name = "BHQ HR Team"
 
         mailto_link = f"mailto:?subject=Interview%20Invitation%20-%20{name}&body=Dear%20{name},%0D%0AWe%20are%20pleased%20to%20invite%20you%20for%20an%20interview%20for%20{position}%20on%20{date}%20at%20{time}.%20Please%20confirm%20your%20availability.%0D%0ARegards,%0A{your_name}"
-        passed_mailto_link = f"mailto:{email}?subject=Congratulations%20-%20You%20Have%20Passed%20the%20Interview%20for%20{position}&body=Dear%20{name},%0D%0AWe%20are%20delighted%20to%20inform%20you%20that%20you%20have%20passed%20the%20interview%20for%20{position}.%20Please%20contact%20us%20for%20next%20steps.%0D%0ARegards,%0A{your_name}"
 
         st.markdown(f"""
             <div class="card">
                 <h4>{name}</h4>
-                <div class="card-content">
-                    <ul>
-                        <li><b>BMI:</b> {row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</li>
-                        <li><b>Info Level:</b> <span class="{row['Info Level'].lower()}">{row['Info Level']}</span> — {row['Info Reason']}</li>
-                        <li><b>Experience Level:</b> <span class="{row['Exp Level'].lower()}">{row['Exp Level']}</span> — {row['Exp Reason']}</li>
-                        <li><b>Position:</b> {position}</li>
-                        <li><b>Department:</b> {row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</li>
-                        <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
-                        <li><b>Expected Salary:</b> {expected_salary}</li>
-                        <li><b>Experience Details:</b> {experience}</li>
-                    </ul>
-                    <a href="{mailto_link}" target="_blank" onclick="if(!window.location.href.includes('mailto')) alert('Failed to open Outlook. Ensure Outlook is your default email client.');">
-                        <button class="send-outlook">Send Interview Invite via Outlook</button>
-                    </a>
-                    <a href="{meeting_link}" target="_blank">
-                        <button class="schedule-teams">Schedule Interview via Teams</button>
-                    </a>
-                    {f'<a href="{passed_mailto_link}" target="_blank"><button class="send-passed">Send Passed Notification</button></a>' if st.session_state['applicant_statuses'].get(status_key, 'None') == 'ผ่านสัมภาษณ์แล้ว' else ''}
-                </div>
+                <ul>
+                    <li><b>BMI:</b> {row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</li>
+                    <li><b>Info Level:</b> <span class="{row['Info Level'].lower()}">{row['Info Level']}</span> — {row['Info Reason']}</li>
+                    <li><b>Experience Level:</b> <span class="{row['Exp Level'].lower()}">{row['Exp Level']}</span> — {row['Exp Reason']}</li>
+                    <li><b>Position:</b> {position}</li>
+                    <li><b>Department:</b> {row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</li>
+                    <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
+                    <li><b>Expected Salary:</b> {expected_salary}</li>
+                    <li><b>Experience Details:</b> {experience}</li>
+                </ul>
+                <a href="{mailto_link}" target="_blank" onclick="if(!window.location.href.includes('mailto')) alert('Failed to open Outlook. Ensure Outlook is your default email client.');">
+                    <button class="send-outlook">Send Interview Invite via Outlook</button>
+                </a>
+                <a href="{meeting_link}" target="_blank">
+                    <button class="schedule-teams">Schedule Interview via Teams</button>
+                </a>
             </div>
         """, unsafe_allow_html=True)
 else:
