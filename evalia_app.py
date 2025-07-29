@@ -352,6 +352,13 @@ if df is not None:
         status_key = f"{name}_{idx}"
         current_status = st.session_state['applicant_statuses'].get(status_key, 'None')
 
+        with st.form(key=f"form_{idx}"):
+            selected_status = st.selectbox("Status", ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'], index=['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'].index(current_status) if current_status in ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'] else 0, key=f"status_{idx}")
+            submit_button = st.form_submit_button("Update Status")
+        
+        if submit_button and selected_status != current_status:
+            st.session_state['applicant_statuses'][status_key] = selected_status
+
         date = "23 July 2025"
         time = "09:00 AM"
         meeting_link = "https://teams.microsoft.com/l/meeting/new"
@@ -359,15 +366,6 @@ if df is not None:
 
         mailto_link = f"mailto:?subject=Interview%20Invitation%20-%20{name}&body=Dear%20{name},%0D%0AWe%20are%20pleased%20to%20invite%20you%20for%20an%20interview%20for%20{position}%20on%20{date}%20at%20{time}.%20Please%20confirm%20your%20availability.%0D%0ARegards,%0A{your_name}"
         passed_mailto_link = f"mailto:{email}?subject=Congratulations%20-%20You%20Have%20Passed%20the%20Interview%20for%20{position}&body=Dear%20{name},%0D%0AWe%20are%20delighted%20to%20inform%20you%20that%20you%20have%20passed%20the%20interview%20for%20{position}.%20Please%20contact%20us%20for%20next%20steps.%0D%0ARegards,%0A{your_name}"
-
-        with st.form(key=f"form_{idx}"):
-            selected_status = st.selectbox("Status", ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'], 
-                                          index=['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'].index(current_status) if current_status in ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'] else 0, 
-                                          key=f"status_{idx}")
-            submit_button = st.form_submit_button("Update Status")
-        
-        if submit_button and selected_status != current_status:
-            st.session_state['applicant_statuses'][status_key] = selected_status
 
         st.markdown(f"""
             <div class="card">
