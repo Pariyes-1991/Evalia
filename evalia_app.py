@@ -385,7 +385,7 @@ if df is not None:
 
         selected_status = st.selectbox(f"Status: {name}", ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'], 
                                       index=['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'].index(current_status) if current_status in ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'] else 0, 
-                                      key=f"status_{idx}", on_change=lambda: st.session_state.update({status_key: st.session_state[f"status_{idx}"]}, st.experimental_rerun()))
+                                      key=f"status_{idx}", on_change=lambda: st.session_state.update({status_key: st.session_state[f"status_{idx}"]}) or st.rerun())
 
 else:
     st.info("Please upload a file or paste an Excel Online link to begin.")
