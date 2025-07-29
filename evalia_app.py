@@ -72,6 +72,20 @@ st.markdown(
         border-radius: 10px;
         margin-bottom: 15px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        position: relative;
+    }
+    .card-content {
+        display: flex;
+        flex-direction: column;
+    }
+    .status-select {
+        margin-bottom: 10px;
+        padding: 5px;
+        border: 1px solid #4b5563;
+        border-radius: 5px;
+        background-color: #2d3748;
+        color: #d1d5db;
+        width: 200px;
     }
     h1, h2, h3, h4 {
         color: #e2e8f0;
@@ -357,9 +371,30 @@ if df is not None:
         # Get or initialize status for this applicant
         status_key = f"{name}_{idx}"
         current_status = st.session_state['applicant_statuses'].get(status_key, 'None')
-        selected_status = st.selectbox("Status", ['None', 'โทรแล้ว', 'สัมภาษณ์แล้ว', 'ไม่ผ่านคัดเลือก', 'ผ่านสัมภาษณ์แล้ว'], index=['None', 'โทรแล้ว', 'สัมภาษณ์แล้ว', 'ไม่ผ่านคัดเลือก', 'ผ่านสัมภาษณ์แล้ว'].index(current_status) if current_status in ['โทรแล้ว', 'สัมภาษณ์แล้ว', 'ไม่ผ่านคัดเลือก', 'ผ่านสัมภาษณ์แล้ว'] else 0, key=f"status_{idx}")
-        if selected_status != current_status:
-            st.session_state['applicant_statuses'][status_key] = selected_status
+
+        # Embed status selection within the card using HTML
+        status_html = f"""
+            <select class="status-select" onchange="this.form.submit()" name="status_{idx}">
+                <option value="None" {'selected' if current_status == 'None' else ''}>Not Set</option>
+                <option value="โทรแล้ว" {'selected' if current_status == 'โทรแล้ว' else ''}>โทรแล้ว</option>
+                <option value="สัมภาษณ์แล้ว" {'selected' if current_status == 'สัมภาษณ์แล้ว' else ''}>สัมภาษณ์แล้ว</option>
+                <option value="ไม่ผ่านคัดเลือก" {'selected' if current_status == 'ไม่ผ่านคัดเลือก' else ''}>ไม่ผ่านคัดเลือก</option>
+                <option value="ผ่านสัมภาษณ์แล้ว" {'selected' if current_status == 'ผ่านสัมภาษณ์แล้ว' else ''}>ผ่านสัมภาษณ์แล้ว</option>
+            </select>
+            <script>
+                document.querySelectorAll('.status-select').forEach(select => {
+                    select.addEventListener('change', () => {
+                        const form = select.closest('form');
+                        if (form) form.submit();
+                    });
+                });
+            </script>
+        """
+
+        if st.form(key=f"form_{idx}"):
+            selected_status = st.markdown(status_html, unsafe_allow_html=True).form_submit_button(label="")
+            if selected_status:
+                st.session_state['applicant_statuses'][status_key] = st.session_state.get(f"status_{idx}", 'None')
 
         date = "29 July 2025"
         time = "04:30 PM"
@@ -372,24 +407,26 @@ if df is not None:
         st.markdown(f"""
             <div class="card">
                 <h4>{name}</h4>
-                <ul>
-                    <li><b>Status:</b> {selected_status if selected_status != 'None' else 'Not Set'}</li>
-                    <li><b>BMI:</b> {row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</li>
-                    <li><b>Info Level:</b> <span class="{row['Info Level'].lower()}">{row['Info Level']}</span> — {row['Info Reason']}</li>
-                    <li><b>Experience Level:</b> <span class="{row['Exp Level'].lower()}">{row['Exp Level']}</span> — {row['Exp Reason']}</li>
-                    <li><b>Position:</b> {position}</li>
-                    <li><b>Department:</b> {row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</li>
-                    <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
-                    <li><b>Expected Salary:</b> {expected_salary}</li>
-                    <li><b>Experience Details:</b> {experience}</li>
-                </ul>
-                <a href="{mailto_link}" target="_blank" onclick="if(!window.location.href.includes('mailto')) alert('Failed to open Outlook. Ensure Outlook is your default email client.');">
-                    <button class="send-outlook">Send Interview Invite via Outlook</button>
-                </a>
-                <a href="{meeting_link}" target="_blank">
-                    <button class="schedule-teams">Schedule Interview via Teams</button>
-                </a>
-                {f'<a href="{passed_mailto_link}" target="_blank"><button class="send-passed">Send Passed Notification</button></a>' if selected_status == 'ผ่านสัมภาษณ์แล้ว' else ''}
+                <div class="card-content">
+                    {status_html}
+                    <ul>
+                        <li><b>BMI:</b> {row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</li>
+                        <li><b>Info Level:</b> <span class="{row['Info Level'].lower()}">{row['Info Level']}</span> — {row['Info Reason']}</li>
+                        <li><b>Experience Level:</b> <span class="{row['Exp Level'].lower()}">{row['Exp Level']}</span> — {row['Exp Reason']}</li>
+                        <li><b>Position:</b> {position}</li>
+                        <li><b>Department:</b> {row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</li>
+                        <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
+                        <li><b>Expected Salary:</b> {expected_salary}</li>
+                        <li><b>Experience Details:</b> {experience}</li>
+                    </ul>
+                    <a href="{mailto_link}" target="_blank" onclick="if(!window.location.href.includes('mailto')) alert('Failed to open Outlook. Ensure Outlook is your default email client.');">
+                        <button class="send-outlook">Send Interview Invite via Outlook</button>
+                    </a>
+                    <a href="{meeting_link}" target="_blank">
+                        <button class="schedule-teams">Schedule Interview via Teams</button>
+                    </a>
+                    {f'<a href="{passed_mailto_link}" target="_blank"><button class="send-passed">Send Passed Notification</button></a>' if st.session_state['applicant_statuses'].get(status_key, 'None') == 'ผ่านสัมภาษณ์แล้ว' else ''}
+                </div>
             </div>
         """, unsafe_allow_html=True)
 else:
