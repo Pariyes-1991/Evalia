@@ -382,12 +382,12 @@ if df is not None:
                 <option value="ผ่านสัมภาษณ์แล้ว" {'selected' if current_status == 'ผ่านสัมภาษณ์แล้ว' else ''}>ผ่านสัมภาษณ์แล้ว</option>
             </select>
             <script>
-                document.querySelectorAll('.status-select').forEach(select => {
-                    select.addEventListener('change', () => {
+                document.querySelectorAll('.status-select').forEach(function(select) {{
+                    select.addEventListener('change', function() {{
                         const form = select.closest('form');
                         if (form) form.submit();
-                    });
-                });
+                    }});
+                }});
             </script>
         """
 
