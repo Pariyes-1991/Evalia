@@ -352,6 +352,21 @@ if df is not None:
         status_key = f"{name}_{idx}"
         current_status = st.session_state['applicant_statuses'].get(status_key, 'None')
 
+        st.markdown(f"""
+            <div class="card">
+                <h4>{name}</h4>
+                <ul>
+                    <li><b>BMI:</b> {row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</li>
+                    <li><b>Info Level:</b> <span class="{row['Info Level'].lower()}">{row['Info Level']}</span> — {row['Info Reason']}</li>
+                    <li><b>Experience Level:</b> <span class="{row['Exp Level'].lower()}">{row['Exp Level']}</span> — {row['Exp Reason']}</li>
+                    <li><b>Position:</b> {position}</li>
+                    <li><b>Department:</b> {row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</li>
+                    <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
+                    <li><b>Expected Salary:</b> {expected_salary}</li>
+                    <li><b>Experience Details:</b> {experience}</li>
+                </ul>
+        """, unsafe_allow_html=True)
+
         with st.form(key=f"form_{idx}"):
             selected_status = st.selectbox(f"Status: {name}", ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'], 
                                           index=['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'].index(current_status) if current_status in ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'] else 0, 
@@ -371,18 +386,6 @@ if df is not None:
         passed_mailto_link = f"mailto:{email}?subject=Congratulations%20-%20You%20Have%20Passed%20the%20Interview%20for%20{position}&body=Dear%20{name},%0D%0AWe%20are%20delighted%20to%20inform%20you%20that%20you%20have%20passed%20the%20interview%20for%20{position}.%20Please%20contact%20us%20for%20next%20steps.%0D%0ARegards,%0A{your_name}"
 
         st.markdown(f"""
-            <div class="card">
-                <h4>{name}</h4>
-                <ul>
-                    <li><b>BMI:</b> {row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</li>
-                    <li><b>Info Level:</b> <span class="{row['Info Level'].lower()}">{row['Info Level']}</span> — {row['Info Reason']}</li>
-                    <li><b>Experience Level:</b> <span class="{row['Exp Level'].lower()}">{row['Exp Level']}</span> — {row['Exp Reason']}</li>
-                    <li><b>Position:</b> {position}</li>
-                    <li><b>Department:</b> {row.get('กลุ่มแผนกที่ท่านสนใจ', 'N/A')}</li>
-                    <li><b>TOEIC Score:</b> {row.get('TOEIC Score (ถ้ามี)', 'N/A')}</li>
-                    <li><b>Expected Salary:</b> {expected_salary}</li>
-                    <li><b>Experience Details:</b> {experience}</li>
-                </ul>
                 <a href="{mailto_link}" target="_blank" onclick="if(!window.location.href.includes('mailto')) alert('Failed to open Outlook. Ensure Outlook is your default email client.');">
                     <button class="send-outlook">Send Interview Invite via Outlook</button>
                 </a>
