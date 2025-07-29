@@ -379,7 +379,7 @@ if df is not None:
                 <a href="{meeting_link}" target="_blank">
                     <button class="schedule-teams">Schedule Interview via Teams</button>
                 </a>
-                {f'<a href="{passed_mailto_link}" target="_blank"><button class="send-passed">Send Passed Notification</button></a>' if st.session_state['applicant_statuses'].get(status_key, 'None') == 'ผ่านสัมภาษณ์' else ''}
+                {f'<a href="{passed_mailto_link}" target="_blank"><button class="send-passed">Send Passed Notification</button></a>' if st.session_state.get(status_key, 'None') == 'ผ่านสัมภาษณ์' else ''}
             </div>
         """, unsafe_allow_html=True)
 
