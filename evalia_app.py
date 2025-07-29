@@ -379,13 +379,19 @@ if df is not None:
                 <a href="{meeting_link}" target="_blank">
                     <button class="schedule-teams">Schedule Interview via Teams</button>
                 </a>
-                {f'<a href="{passed_mailto_link}" target="_blank"><button class="send-passed">Send Passed Notification</button></a>' if st.session_state['applicant_statuses'].get(status_key, 'None') == 'ผ่านสัมภาษณ์' else ''}
             </div>
         """, unsafe_allow_html=True)
 
         selected_status = st.selectbox(f"Status: {name}", ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'], 
                                       index=['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'].index(current_status) if current_status in ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'] else 0, 
-                                      key=f"status_{idx}", on_change=lambda: st.session_state.update({status_key: st.session_state[f"status_{idx}"]}))
+                                      key=f"status_{idx}", on_change=lambda: (st.session_state.update({status_key: st.session_state[f"status_{idx}"]},), st.rerun()))
+
+        if st.session_state.get(status_key, 'None') == 'ผ่านสัมภาษณ์':
+            st.markdown(f"""
+                <a href="{passed_mailto_link}" target="_blank">
+                    <button class="send-passed">Send Passed Notification</button>
+                </a>
+            """, unsafe_allow_html=True)
 
 else:
     st.info("Please upload a file or paste an Excel Online link to begin.")
