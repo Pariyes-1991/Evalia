@@ -372,9 +372,9 @@ if df is not None:
         status_key = f"{name}_{idx}"
         current_status = st.session_state['applicant_statuses'].get(status_key, 'None')
 
-        # Embed status selection within the card using HTML
+        # Embed status selection within the card using HTML within a form
         status_html = f"""
-            <select class="status-select" onchange="this.form.submit()" name="status_{idx}">
+            <select class="status-select" name="status_{idx}">
                 <option value="None" {'selected' if current_status == 'None' else ''}>Not Set</option>
                 <option value="โทรแล้ว" {'selected' if current_status == 'โทรแล้ว' else ''}>โทรแล้ว</option>
                 <option value="สัมภาษณ์แล้ว" {'selected' if current_status == 'สัมภาษณ์แล้ว' else ''}>สัมภาษณ์แล้ว</option>
@@ -382,19 +382,23 @@ if df is not None:
                 <option value="ผ่านสัมภาษณ์แล้ว" {'selected' if current_status == 'ผ่านสัมภาษณ์แล้ว' else ''}>ผ่านสัมภาษณ์แล้ว</option>
             </select>
             <script>
-                document.querySelectorAll('.status-select').forEach(function(select) {{
-                    select.addEventListener('change', function() {{
+                document.querySelectorAll('.status-select').forEach(function(select) {
+                    select.addEventListener('change', function() {
                         const form = select.closest('form');
                         if (form) form.submit();
-                    }});
-                }});
+                    });
+                });
             </script>
         """
 
-        if st.form(key=f"form_{idx}"):
-            selected_status = st.markdown(status_html, unsafe_allow_html=True).form_submit_button(label="")
-            if selected_status:
-                st.session_state['applicant_statuses'][status_key] = st.session_state.get(f"status_{idx}", 'None')
+        with st.form(key=f"form_{idx}"):
+            st.markdown(status_html, unsafe_allow_html=True)
+            submit_button = st.form_submit_button(label="Update Status")
+
+        if submit_button:
+            selected_status = st.session_state.get(f"status_{idx}", 'None')
+            if selected_status != current_status:
+                st.session_state['applicant_statuses'][status_key] = selected_status
 
         date = "29 July 2025"
         time = "04:30 PM"
@@ -408,7 +412,6 @@ if df is not None:
             <div class="card">
                 <h4>{name}</h4>
                 <div class="card-content">
-                    {status_html}
                     <ul>
                         <li><b>BMI:</b> {row['BMI'] if pd.notna(row['BMI']) else 'N/A'}</li>
                         <li><b>Info Level:</b> <span class="{row['Info Level'].lower()}">{row['Info Level']}</span> — {row['Info Reason']}</li>
