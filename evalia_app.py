@@ -384,7 +384,7 @@ if df is not None:
         """, unsafe_allow_html=True)
 
         with st.form(key=f"form_{idx}"):
-            selected_status = st.selectbox("Status:", ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'], index=['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'].index(current_status) if current_status in ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'] else 0, key=f"status_{idx}")
+            selected_status = st.selectbox(f"Status: {name}", ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'], index=['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'].index(current_status) if current_status in ['ไม่ผ่านคัดเลือก', 'นัดสัมภาษณ์แล้ว', 'ผ่านสัมภาษณ์', 'ไม่ผ่านสัมภาษณ์'] else 0, key=f"status_{idx}")
             submit_button = st.form_submit_button("Update Status")
         
         if submit_button and selected_status != current_status:
